@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "better_progression",
+	"version": "${version}",
+	"name": "Better Progression",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/better_progression/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"better_progression.BetterProgression"
+		],
+		"client": [
+			"better_progression.BetterProgressionClient"
+		],
+		"fabric-datagen": [
+          "better_progression.datagen.BetterProgressionDataGenerator"
+		]
+	},
+	"mixins": [
+		"better_progression.mixins.json",
+		{
+			"config": "better_progression.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
