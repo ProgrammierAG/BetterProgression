@@ -3,6 +3,13 @@ package better_progression;
 import better_progression.Items.ModItems;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.loot.LootTableSubProvider;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +27,20 @@ public class BetterProgression implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		ModItems.initialize();
+
+		LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
+			// Nur eingebaute (Vanilla/Mod) Tabellen ändern, keine User-Datapacks
+			if (!source.isBuiltin()) return;
+
+			// Beispiel: Etwas in die Wüstentempel-Truhe legen
+			if (BuiltInLootTables.ANCIENT_CITY.equals(key)) {
+				LootPool pool = LootPool.lootPool().build();
+
+
+				tableBuilder.pool(pool);
+			}
+		});
+
 		LOGGER.info("Hello Fabric world!");
 	}
 }
