@@ -21,9 +21,5 @@ public class ModBlockLootTableProvider extends FabricBlockLootTableProvider {
 
     @Override
     public void generate() {
-        add(Blocks.OAK_LOG, LootTable.lootTable().withPool(applyExplosionCondition(Items.OAK_LOG, LootPool.lootPool()
-                .setRolls(new UniformGenerator(new ConstantValue(7), new ConstantValue(9)))
-                .add(LootItem.lootTableItem(Items.OAK_LOG))))
-        );
     }
 }

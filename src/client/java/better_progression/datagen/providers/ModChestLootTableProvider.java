@@ -1,7 +1,7 @@
 package better_progression.datagen.providers;
 
 import better_progression.Items.ModItems;
-import better_progression.LootTables.ModLoottables;
+import better_progression.LootTables.ModLootTables;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
 import net.minecraft.core.HolderLookup;
@@ -24,7 +24,7 @@ public class ModChestLootTableProvider extends SimpleFabricLootTableProvider {
 
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> lootTableBiConsumer) {
-        lootTableBiConsumer.accept(ModLoottables.TEST_CHEST_LOOT, LootTable.lootTable()
+        lootTableBiConsumer.accept(ModLootTables.TEST_CHEST_LOOT, LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(2.0f))
                         .add(LootItem.lootTableItem(ModItems.SKILLPOINT_BOTTLE)

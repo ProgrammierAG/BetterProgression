@@ -1,6 +1,7 @@
 package better_progression;
 
 import better_progression.Items.ModItems;
+import better_progression.LootTables.ModLootTables;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public class BetterProgression implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		ModItems.initialize();
+		ModLootTables.initialize();
 
 		LOGGER.info("Hello Fabric world!");
 	}
