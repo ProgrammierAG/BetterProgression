@@ -14,7 +14,5 @@ public class BetterProgressionDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(ModItemTagProvider::new);
 		pack.addProvider(ModModelProvider::new);
 		pack.addProvider(ModRecipeProvider::new);
-		pack.addProvider(ModChestLootTableProvider::new);
-		pack.addProvider(ModBlockLootTableProvider::new);
 	}
 }
