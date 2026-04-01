@@ -2,6 +2,9 @@
 	"required": true,
 	"package": "better_progression.mixin.client",
 	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"InventoryScreenMixin"
+	],
 	"client": [
 		"ExampleClientMixin"
 	],
