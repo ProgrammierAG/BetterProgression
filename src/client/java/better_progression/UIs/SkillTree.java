@@ -6,10 +6,25 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.Vec2;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SkillTree extends Screen {
+
+    private int windowX = 0;
+    private int windowY = 0;
+
+    private boolean isDragging = false;
+    private double dragX = 0;
+    private double dragY = 0;
+
+    private List<ImageButton> buttons = new ArrayList<>();
+    private List<Vec2> relativePos = new ArrayList<>();
 
     public SkillTree() {
         super(Component.literal("SkillTree"));
@@ -19,17 +34,10 @@ public class SkillTree extends Screen {
     protected void init() {
         // Buttons:
 
-        Identifier TEST_SPRIT = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test");
-        WidgetSprites iconSprites = new WidgetSprites(TEST_SPRIT, TEST_SPRIT);
-        ImageButton squareButton = new ImageButton(
-                this.width / 2 - 10, this.height / 2 - 10, 20, 20,
-                iconSprites,
-                button -> {
-                    System.out.println("Button wurde gedrückt!");
-                }
-        );
-        squareButton.setTooltip(Tooltip.create(Component.literal("Tooltip!")));
-        this.addRenderableWidget(squareButton);
+        Identifier TEST_SPRITE = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test");
+
+        genSkillButton(this.width / 2 - 10, this.height / 2 - 10, 20, 20, TEST_SPRITE);
+        genSkillButton(this.width / 2 - 40, this.height / 2 - 10, 20, 20, TEST_SPRITE);
 
         super.init();
     }
@@ -42,6 +50,58 @@ public class SkillTree extends Screen {
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 40, 0xFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    public void genSkillButton(int x, int y, int width, int height, Identifier icon) {
+        WidgetSprites iconSprites = new WidgetSprites(icon, icon);
+        ImageButton Button = new ImageButton(
+                x, y, width, height,
+                iconSprites,
+                button -> {
+                    //
+                }
+        );
+        Button.setTooltip(Tooltip.create(Component.literal("Tooltip!")));
+        this.addRenderableWidget(Button);
+        this.buttons.add(Button);
+        this.relativePos.add(new Vec2(x, y));
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
+        if (mouseButtonEvent.button() == 0) {
+            this.isDragging = true;
+            this.dragX = mouseButtonEvent.x() - windowX;
+            this.dragY = mouseButtonEvent.y() - windowY;
+            return true;
+        }
+        return super.mouseClicked(mouseButtonEvent, bl);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double d, double e) {
+        if (this.isDragging && mouseButtonEvent.button() == 0) {
+            this.windowX = (int) (mouseButtonEvent.x() - this.dragX);
+            this.windowY = (int) (mouseButtonEvent.y() - this.dragY);
+
+            for (ImageButton button : buttons) {
+                button.setPosition(
+                        this.windowX + (int) relativePos.get(buttons.indexOf(button)).x,
+                        this.windowY + (int) relativePos.get(buttons.indexOf(button)).y);
+            }
+
+            return true;
+        }
+
+        return super.mouseDragged(mouseButtonEvent, d, e);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        if (mouseButtonEvent.button() == 0) {
+            this.isDragging = false;
+        }
+        return super.mouseReleased(mouseButtonEvent);
     }
 
     @Override
