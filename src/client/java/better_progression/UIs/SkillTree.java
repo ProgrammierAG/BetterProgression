@@ -34,10 +34,10 @@ public class SkillTree extends Screen {
     protected void init() {
         // Buttons:
 
-        Identifier TEST_SPRITE = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test");
+        Identifier ICON = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test");
+        Identifier HOVERED = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test");
 
-        genSkillButton(this.width / 2 - 10, this.height / 2 - 10, 20, 20, TEST_SPRITE);
-        genSkillButton(this.width / 2 - 40, this.height / 2 - 10, 20, 20, TEST_SPRITE);
+        genSkillButton(this.width / 2 - 10, this.height / 2 - 10, 20, 20, ICON, HOVERED);
 
         super.init();
     }
@@ -52,8 +52,9 @@ public class SkillTree extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
-    public void genSkillButton(int x, int y, int width, int height, Identifier icon) {
-        WidgetSprites iconSprites = new WidgetSprites(icon, icon);
+    public void genSkillButton(int x, int y, int width, int height,
+                               Identifier icon, Identifier whenHovered) {
+        WidgetSprites iconSprites = new WidgetSprites(icon, whenHovered);
         ImageButton Button = new ImageButton(
                 x, y, width, height,
                 iconSprites,
