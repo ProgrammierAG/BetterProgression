@@ -19,7 +19,7 @@ public class BetterProgressionClient implements ClientModInitializer {
 
 		HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
 			int x = guiGraphics.guiWidth() / 2 - 91;
-			int y = guiGraphics.guiHeight() - 40;
+			int y = guiGraphics.guiHeight() - 35;
 
 			guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED , BAR_EMPTY, x, y, 182, 5);
 

@@ -34,8 +34,8 @@ public class SkillTree extends Screen {
     protected void init() {
         // Buttons:
 
-        Identifier ICON = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test");
-        Identifier HOVERED = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test");
+        Identifier ICON = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
+        Identifier HOVERED = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
 
         genSkillButton(this.width / 2 - 10, this.height / 2 - 10, 20, 20, ICON, HOVERED);
 
