@@ -1,5 +1,6 @@
 package better_progression.mixin.client;
 
+import better_progression.BetterProgressionClient;
 import net.minecraft.client.gui.Gui;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,6 +14,6 @@ public class InGameHudMixin {
             ordinal = 4
     )
     private int moveHeartsUp(int y) {
-        return y - 6;
+        return y - BetterProgressionClient.HEARTS_OFFSET_Y;
     }
 }
