@@ -2,6 +2,8 @@ package better_progression.Items;
 
 import better_progression.BetterProgression;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -21,7 +23,7 @@ public class SkillpointBottle extends ModItem{
     public static final ResourceKey<Item> ITEM_KEY = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, NAME_ID));
 
     public SkillpointBottle() {
-        super(new Properties().setId(ITEM_KEY));
+        super(new Properties().setId(ITEM_KEY).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true));
     }
 
     @Override
