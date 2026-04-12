@@ -10,21 +10,23 @@ public class BetterProgressionClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+
+		BetterProgression.getLogger().info("Initializing BetterProgression Client");
 		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
 
+		//adds a Second bar to the Hud
 		final Identifier BAR_FULL = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "bar_full");
 		final Identifier BAR_EMPTY = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "bar_empty");
 
-
 		HudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
 			int x = guiGraphics.guiWidth() / 2 - 91;
-			int y = guiGraphics.guiHeight() - 35;
+			int y = guiGraphics.guiHeight() - 34;
 
-			guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED , BAR_EMPTY, x, y, 182, 5);
+			guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BAR_EMPTY, x, y, 182, 5);
 
 			int progress = 91;
 			if (progress > 0) {
-				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED , BAR_FULL, 182, 5, 0, 0, x, y, progress, 5);
+				guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, BAR_FULL, 182, 5, 0, 0, x, y, progress, 5);
 			}
 		});
 	}

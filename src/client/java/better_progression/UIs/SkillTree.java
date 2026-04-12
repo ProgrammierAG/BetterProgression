@@ -1,6 +1,10 @@
 package better_progression.UIs;
 
 import better_progression.BetterProgression;
+import better_progression.networking.SkillUnlockPayload;
+import better_progression.skills.Skill;
+import better_progression.skills.Skills;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -37,7 +41,15 @@ public class SkillTree extends Screen {
         Identifier ICON = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
         Identifier HOVERED = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
 
-        genSkillButton(this.width / 2 - 10, this.height / 2 - 10, 20, 20, ICON, HOVERED);
+        int offset = 0;
+        for (Skill skill : Skills.SKILLS) {
+            this.genSkillButton(offset, 0, 20, 20, ICON, HOVERED, skill);
+            offset += 25;
+        }
+
+
+
+        //genSkillButton(this.width / 2 - 10, this.height / 2 - 10, 20, 20, ICON, HOVERED);
 
         super.init();
     }
@@ -53,16 +65,20 @@ public class SkillTree extends Screen {
     }
 
     public void genSkillButton(int x, int y, int width, int height,
-                               Identifier icon, Identifier whenHovered) {
+                               Identifier icon, Identifier whenHovered, Skill skill) {
         WidgetSprites iconSprites = new WidgetSprites(icon, whenHovered);
         ImageButton Button = new ImageButton(
                 x, y, width, height,
                 iconSprites,
                 button -> {
-                    //
+
+                    BetterProgression.getLogger().info("sending Payload for: " + skill.NAME_ID());
+                    ClientPlayNetworking.send(new SkillUnlockPayload(skill.NAME_ID()));
+
+                    button.active = false;
                 }
         );
-        Button.setTooltip(Tooltip.create(Component.literal("Tooltip!")));
+        Button.setTooltip(Tooltip.create(Component.literal(skill.ENGLISH_NAME() + "\n" + skill.ENGLISH_DECRIPTION())));
         this.addRenderableWidget(Button);
         this.buttons.add(Button);
         this.relativePos.add(new Vec2(x, y));
@@ -74,7 +90,9 @@ public class SkillTree extends Screen {
             this.isDragging = true;
             this.dragX = mouseButtonEvent.x() - windowX;
             this.dragY = mouseButtonEvent.y() - windowY;
-            return true;
+            if (super.mouseClicked(mouseButtonEvent, bl)) {
+                return true;
+            }
         }
         return super.mouseClicked(mouseButtonEvent, bl);
     }

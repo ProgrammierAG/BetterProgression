@@ -1,4 +1,4 @@
-package better_progression.Items;
+package better_progression.items;
 
 import better_progression.BetterProgression;
 import net.minecraft.core.component.DataComponents;
@@ -12,7 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 
-public class SkillpointBottle extends ModItem{
+public class SkillpointBottle extends ModItem {
     public static final String NAME_ID = "skillpoint_bottle";
     public static final String ENGLISH_NAME = "Skillpoint Bottle";
     public static final String GERMAN_NAME = "Fähigkeitspunkt Flasche";

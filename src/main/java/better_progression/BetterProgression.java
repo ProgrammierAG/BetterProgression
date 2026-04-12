@@ -1,6 +1,8 @@
 package better_progression;
 
-import better_progression.Items.ModItems;
+import better_progression.items.ModItems;
+import better_progression.skillLogic.Networking;
+import better_progression.skills.Skills;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
@@ -27,9 +29,11 @@ public class BetterProgression implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
-		ModItems.initialize();
+		LOGGER.info("Initializing BetterProgression Server");
 
-		LOGGER.info("Hello Fabric world!");
+		ModItems.initialize();
+		Skills.initialize();
+		Networking.registerServerReceiver();
 
 		//spawnt SkillpointBottles als Item an verschiedenen Stellen
 		LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
@@ -50,5 +54,9 @@ public class BetterProgression implements ModInitializer {
 				tableBuilder.pool(poolBuilder.build());
 			}
         });
+	}
+
+	public static Logger getLogger() {
+		return LOGGER;
 	}
 }

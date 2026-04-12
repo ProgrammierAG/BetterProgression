@@ -1,13 +1,13 @@
 package better_progression.datagen.providers;
 
-import better_progression.Items.SkillpointBottle;
+import better_progression.items.SkillpointBottle;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
 
 import java.util.concurrent.CompletableFuture;
 
-import static better_progression.Items.ModItems.SKILLPOINT_BOTTLE;
+import static better_progression.items.ModItems.SKILLPOINT_BOTTLE;
 
 public class ModGermanLangProvider extends FabricLanguageProvider {
     public static final String LANGUAGE_CODE = "de_de";
