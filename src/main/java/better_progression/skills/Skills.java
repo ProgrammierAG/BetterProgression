@@ -1,6 +1,8 @@
 package better_progression.skills;
 
 import better_progression.BetterProgression;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +14,7 @@ public class Skills {
 
     public static final Skill SPEED = register(new Skill("Speed", "Speed_desc",
             ((player, level) -> {
-                player.setSpeed(2);
+                player.addEffect(new MobEffectInstance(MobEffects.SPEED));
             })
     ));
 
