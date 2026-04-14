@@ -9,7 +9,7 @@ import net.minecraft.resources.Identifier;
 
 public record SkillUnlockPayload(String NAME_ID) implements CustomPacketPayload {
     public static final Type<SkillUnlockPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(
-            BetterProgression.MOD_ID, "unlock_skill"));
+            BetterProgression.MOD_ID, "unlocked_skills"));
 
     public static final StreamCodec<ByteBuf, SkillUnlockPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8,

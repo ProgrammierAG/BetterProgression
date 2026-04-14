@@ -39,11 +39,10 @@ public class SkillTree extends Screen {
         // Buttons:
 
         Identifier ICON = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
-        Identifier HOVERED = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
-
+        WidgetSprites widget = new WidgetSprites(ICON);
         int offset = 0;
         for (Skill skill : Skills.SKILLS) {
-            this.genSkillButton(offset, 0, 20, 20, ICON, HOVERED, skill);
+            this.genSkillButton(offset, 0, 20, 20, widget, skill);
             offset += 25;
         }
 
@@ -65,20 +64,16 @@ public class SkillTree extends Screen {
     }
 
     public void genSkillButton(int x, int y, int width, int height,
-                               Identifier icon, Identifier whenHovered, Skill skill) {
-        WidgetSprites iconSprites = new WidgetSprites(icon, whenHovered);
+                               WidgetSprites icon, Skill skill) {
         ImageButton Button = new ImageButton(
                 x, y, width, height,
-                iconSprites,
+                icon,
                 button -> {
-
                     BetterProgression.getLogger().info("sending Payload for: " + skill.NAME_ID());
                     ClientPlayNetworking.send(new SkillUnlockPayload(skill.NAME_ID()));
-
-                    button.active = false;
                 }
         );
-        Button.setTooltip(Tooltip.create(Component.literal(skill.ENGLISH_NAME() + "\n" + skill.ENGLISH_DECRIPTION())));
+        Button.setTooltip(Tooltip.create(Component.translatable(skill.DESC_ID())));
         this.addRenderableWidget(Button);
         this.buttons.add(Button);
         this.relativePos.add(new Vec2(x, y));

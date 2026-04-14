@@ -19,13 +19,12 @@ public class Networking {
 
         ServerPlayNetworking.registerGlobalReceiver(SkillUnlockPayload.TYPE, (payload, context) -> {
             ServerPlayer player = context.player();
-            String Name_ID = payload.NAME_ID();
 
             context.server().execute(() -> {
-                BetterProgression.getLogger().info("recived Payload for: ", Name_ID);
-                if (canUnlock(player, Name_ID)) {
-                    unlockSkillForPlayer(player, Name_ID);
-                    player.displayClientMessage(Component.literal("Skill freigeschaltet!"), false);
+                BetterProgression.getLogger().info("recived Payload for: ", payload.NAME_ID());
+                if (canUnlock(player, payload.NAME_ID())) {
+                    unlockSkillForPlayer(player, payload.NAME_ID());
+                    player.displayClientMessage(Component.literal("Skill " + payload.NAME_ID() + " freigeschaltet!"), false);
                 }
             });
         });

@@ -1,28 +1,25 @@
 package better_progression.skills;
 
 import better_progression.BetterProgression;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Skills {
-    public static final List<Skill> SKILLS = new ArrayList<>();
+    public static List<Skill> SKILLS = new ArrayList<>();
 
-    public static final Skill SPEED_BOOST = register(new Skill(
-            "speed_boost",
-            "Speeed boost",
-            "makes the player faster",
-            player -> player.addEffect(new MobEffectInstance(MobEffects.SPEED, 200, 1))
+    public static final Skill SPEED = register(new Skill("Speed", "Speed_desc",
+            ((player, level) -> {
+                player.setSpeed(2);
+            })
     ));
 
-    private static Skill register(Skill skill) {
+    public static Skill register(Skill skill) {
+        BetterProgression.getLogger().info("registering Skill: " + skill.NAME_ID());
         SKILLS.add(skill);
         return skill;
     }
-
     public static void initialize() {
-        BetterProgression.getLogger().info("Registering Skills");
+        BetterProgression.getLogger().info("initializing Skills");
     }
 }

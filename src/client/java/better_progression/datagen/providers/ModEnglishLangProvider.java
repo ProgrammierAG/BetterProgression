@@ -1,7 +1,6 @@
 package better_progression.datagen.providers;
 
 import better_progression.items.SkillpointBottle;
-import better_progression.skills.Skill;
 import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
@@ -21,11 +20,5 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
     @Override
     public void generateTranslations(HolderLookup.Provider holderLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add(SKILLPOINT_BOTTLE, SkillpointBottle.ENGLISH_NAME);
-
-        for (Skill skill : Skills.SKILLS) {
-            translationBuilder.add(skill.getName(), skill.ENGLISH_NAME());
-
-            translationBuilder.add(skill.getName() + ".desc", skill.ENGLISH_DECRIPTION());
-        }
     }
 }
