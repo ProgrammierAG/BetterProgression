@@ -41,7 +41,7 @@ public class SkillTree extends Screen {
         Identifier ICON = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
         WidgetSprites widget = new WidgetSprites(ICON);
         int offset = 0;
-        for (Skill skill : Skills.SKILLS) {
+        for (Skill skill : Skills.SKILLS.values()) {
             this.genSkillButton(offset, 0, 20, 20, widget, skill);
             offset += 25;
         }

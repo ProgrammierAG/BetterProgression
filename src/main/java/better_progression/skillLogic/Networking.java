@@ -21,10 +21,10 @@ public class Networking {
             ServerPlayer player = context.player();
 
             context.server().execute(() -> {
-                BetterProgression.getLogger().info("recived Payload for: ", payload.NAME_ID());
+                BetterProgression.getLogger().info("recived Payload for: " + payload.NAME_ID());
                 if (canUnlock(player, payload.NAME_ID())) {
                     unlockSkillForPlayer(player, payload.NAME_ID());
-                    player.displayClientMessage(Component.literal("Skill " + payload.NAME_ID() + " freigeschaltet!"), false);
+                    //player.displayClientMessage(Component.literal("Skill " + payload.NAME_ID() + " freigeschaltet!"), false);
                 }
             });
         });
@@ -44,7 +44,8 @@ public class Networking {
 
             player.setAttached(Attachments.UNLOCKED_SKILLS, newList);
 
-            BetterProgression.getLogger().info("Skill gespeichert");
+            BetterProgression.getLogger().info("Skill " + Name_ID + " unlocked");
+            player.displayClientMessage(Component.literal("Skill " + Name_ID + " freigeschaltet!"), true);
         }
     }
 }

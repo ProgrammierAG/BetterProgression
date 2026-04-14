@@ -3,6 +3,7 @@ package better_progression;
 import better_progression.items.ModItems;
 import better_progression.skillLogic.Attachments;
 import better_progression.skillLogic.Networking;
+import better_progression.skillLogic.SkillLogicRunner;
 import better_progression.skills.Skills;
 import net.fabricmc.api.ModInitializer;
 
@@ -34,6 +35,7 @@ public class BetterProgression implements ModInitializer {
 		// Proceed with mild caution.
 		LOGGER.info("Initializing BetterProgression Server");
 
+		SkillLogicRunner.initialize();
 		ModItems.initialize();
 		Attachments.initialize();
 		Skills.initialize();
