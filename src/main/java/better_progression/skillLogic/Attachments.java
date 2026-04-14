@@ -15,4 +15,8 @@ public class Attachments {
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "unlocked_skills"),
             Codec.list(Codec.STRING)
     );
+
+    public static void initialize() {
+        BetterProgression.getLogger().info("Initializing Attatchments");
+    }
 }
