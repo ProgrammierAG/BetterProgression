@@ -17,7 +17,7 @@ public class Skills {
                 player.addEffect(new MobEffectInstance(MobEffects.SPEED));
             }),
             (player, level) -> {},
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "")
+            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_multiplier")
     ));
 
 
@@ -27,7 +27,7 @@ public class Skills {
                 player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(
                         player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).getBaseValue() + level + 10);
             }),
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "")
+            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "sword_range")
     ));
 
     public static Skill register(Skill skill) {

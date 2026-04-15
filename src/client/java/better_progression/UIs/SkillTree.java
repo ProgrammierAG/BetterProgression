@@ -7,6 +7,7 @@ import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.ImageWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,6 +31,8 @@ public class SkillTree extends Screen {
     private List<ImageButton> buttons = new ArrayList<>();
     private List<Vec2> relativePos = new ArrayList<>();
 
+    private Identifier background = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "task_frame_unobtained");
+
     public SkillTree() {
         super(Component.literal("SkillTree"));
     }
@@ -38,10 +41,10 @@ public class SkillTree extends Screen {
     protected void init() {
         // Buttons:
 
-        Identifier ICON = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook");
-        WidgetSprites widget = new WidgetSprites(ICON);
         int offset = 0;
         for (Skill skill : Skills.SKILLS.values()) {
+            Identifier ICON = skill.icon();
+            WidgetSprites widget = new WidgetSprites(ICON);
             this.genSkillButton(offset, 0, 20, 20, widget, skill);
             offset += 25;
         }
@@ -59,6 +62,9 @@ public class SkillTree extends Screen {
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 40, 0xFFFFFF);
+        for (ImageButton button : buttons) {
+            guiGraphics.blit(background, ((int) relativePos.get(buttons.indexOf(button)).x), ((int) relativePos.get(buttons.indexOf(button)).y), 0, 0, 20, 20, 0, 0);
+        }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
