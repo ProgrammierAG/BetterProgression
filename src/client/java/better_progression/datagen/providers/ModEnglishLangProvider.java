@@ -20,5 +20,7 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
     @Override
     public void generateTranslations(HolderLookup.Provider holderLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add(SKILLPOINT_BOTTLE, SkillpointBottle.ENGLISH_NAME);
+        translationBuilder.add(Skills.SKILLS.get("speed").DESC_ID(), "Speed\n" + "Increases the players speed.");
+        translationBuilder.add(Skills.SKILLS.get("attack_range").DESC_ID(), "Attack range\n" + "Increases the players attack range.");
     }
 }
