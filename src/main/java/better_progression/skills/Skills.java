@@ -20,7 +20,6 @@ public class Skills {
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "")
     ));
 
-    // test-comment-to-delete
 
     public static final Skill ATTACK_RANGE = register(new Skill("attack_range", "attack_range_desc",
             (player, level) -> {},
