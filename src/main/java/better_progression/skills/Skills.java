@@ -30,6 +30,18 @@ public class Skills {
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "sword_range")
     ));
 
+    public static final Skill NO_ROTTEN_FLESH_EFFECT = register(new Skill("no_rotten_flesh_effect", "no_rotten_flesh_effect_desc",
+            ((player, level) -> {
+
+            }),
+            (player, level) -> {
+                if (player.hasEffect(MobEffects.HUNGER)){
+                    player.removeEffect(MobEffects.HUNGER);
+                }
+            },
+            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "no_rotten_flesh_effect")
+    ));
+
     public static Skill register(Skill skill) {
         BetterProgression.getLogger().info("registering Skill: " + skill.NAME_ID());
         SKILLS.put(skill.NAME_ID(), skill);
