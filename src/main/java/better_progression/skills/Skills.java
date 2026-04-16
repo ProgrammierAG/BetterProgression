@@ -14,19 +14,22 @@ public class Skills {
 
     public static final Skill SPEED = register(new Skill("speed", "speed_desc",
             ((player, level) -> {
-                player.addEffect(new MobEffectInstance(MobEffects.SPEED));
+
             }),
-            (player, level) -> {},
+            (player, level) -> {
+                player.addEffect(new MobEffectInstance(MobEffects.SPEED));
+            },
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_multiplier")
     ));
 
 
     public static final Skill ATTACK_RANGE = register(new Skill("attack_range", "attack_range_desc",
-            (player, level) -> {},
-            ((player, level) -> {
-                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(
-                        player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).getBaseValue() + level + 10);
-            }),
+            (player, level) -> {
+                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(3 + 10 * level);
+            },
+            (player, level) -> {
+
+            },
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "sword_range")
     ));
 

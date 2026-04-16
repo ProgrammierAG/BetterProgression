@@ -2,6 +2,7 @@ package better_progression.skillLogic;
 
 import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
+import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.CompoundTag;
@@ -43,6 +44,8 @@ public class Networking {
             newList.add(Name_ID);
 
             player.setAttached(Attachments.UNLOCKED_SKILLS, newList);
+
+            Skills.SKILLS.get(Name_ID).onUnlock().process(player, 1);
 
             BetterProgression.getLogger().info("Skill " + Name_ID + " unlocked");
             player.displayClientMessage(Component.literal("Skill " + Name_ID + " freigeschaltet!"), true);
