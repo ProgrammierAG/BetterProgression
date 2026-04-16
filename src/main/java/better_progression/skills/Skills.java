@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class Skills {
     public static Map<String , Skill> SKILLS = new HashMap<>();
+    public static final Identifier BUTTON_BACKGROUND = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_multiplier");
 
     public static final Skill SPEED = register(new Skill("speed", "speed_desc",
             ((player, level) -> {

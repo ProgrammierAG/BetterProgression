@@ -31,7 +31,7 @@ public class SkillTree extends Screen {
     private List<ImageButton> buttons = new ArrayList<>();
     private List<Vec2> relativePos = new ArrayList<>();
 
-    private Identifier background = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "task_frame_unobtained");
+
 
     public SkillTree() {
         super(Component.literal("SkillTree"));
@@ -61,9 +61,12 @@ public class SkillTree extends Screen {
 
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 40, 0xFFFFFF);
+        //guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 40, 0xFFFFFF);
+
         for (ImageButton button : buttons) {
-            guiGraphics.blit(background, ((int) relativePos.get(buttons.indexOf(button)).x), ((int) relativePos.get(buttons.indexOf(button)).y), 0, 0, 20, 20, 0, 0);
+            int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
+            int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
+            guiGraphics.blit(Skills.BUTTON_BACKGROUND,x - 3,y - 3 , x + 23, y + 23, 0, 0, 1, 1);
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
