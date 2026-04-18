@@ -44,17 +44,17 @@ public class SkillTree extends Screen {
     protected void init() {
         // Buttons:
 
-        int offset = 0;
+        final int[] offset = {0};
         for (Skill skill : Skills.SKILLS.values()) {
-            Identifier ICON = skill.icon();
-            WidgetSprites widget = new WidgetSprites(ICON);
-            this.genSkillButton(offset, 0, 20, 20, widget, skill);
-            offset += 25;
+
         }
 
-
-
-        //genSkillButton(this.width / 2 - 10, this.height / 2 - 10, 20, 20, ICON, HOVERED);
+        Skills.SKILLS.values().stream().forEach(skill -> {
+            Identifier ICON = skill.icon();
+            WidgetSprites widget = new WidgetSprites(ICON);
+            this.genSkillButton(offset[0], 0, 20, 20, widget, skill);
+            offset[0] += 25;
+        });
 
         super.init();
     }
@@ -64,7 +64,7 @@ public class SkillTree extends Screen {
 
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
-        for (ImageButton button : buttons) {
+        buttons.stream().forEach(button -> {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
             int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
 
@@ -72,7 +72,7 @@ public class SkillTree extends Screen {
 
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
                     x - 2, y - 2, 24, 24);
-        }
+        });
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
