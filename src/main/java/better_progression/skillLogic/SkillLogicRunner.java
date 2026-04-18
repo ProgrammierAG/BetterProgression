@@ -18,7 +18,7 @@ public class SkillLogicRunner {
                                 .map(Skills.SKILLS::get)
                                 .filter(Objects::nonNull)
                                 .forEach(skill -> {
-                                    skill.onTick().process(player, 1);
+                                    skill.onTick().process(player, player.level(), 1);
                                 })
                         );
             }

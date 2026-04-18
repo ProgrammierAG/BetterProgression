@@ -45,7 +45,7 @@ public class Networking {
 
             player.setAttached(Attachments.UNLOCKED_SKILLS, newList);
 
-            Skills.SKILLS.get(Name_ID).onUnlock().process(player, 1);
+            Skills.SKILLS.get(Name_ID).onUnlock().process(player, player.level(), 1);
 
             BetterProgression.getLogger().info("Skill " + Name_ID + " unlocked");
             player.displayClientMessage(Component.literal("Skill " + Name_ID + " freigeschaltet!"), true);

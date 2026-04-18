@@ -2,6 +2,7 @@ package better_progression.UIs;
 
 import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
+import better_progression.skillLogic.Attachments;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec2;
@@ -30,6 +32,7 @@ public class SkillTree extends Screen {
 
     private List<ImageButton> buttons = new ArrayList<>();
     private List<Vec2> relativePos = new ArrayList<>();
+    private List<String> SkillIDs = new ArrayList<>();
 
 
 
@@ -61,12 +64,14 @@ public class SkillTree extends Screen {
 
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
-        //guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 40, 0xFFFFFF);
-
         for (ImageButton button : buttons) {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
             int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
-            guiGraphics.blit(Skills.BUTTON_BACKGROUND,x - 3,y - 3 , x + 23, y + 23, 0, 0, 1, 1);
+
+            button.setPosition(x, y);
+
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
+                    x - 2, y - 2, 24, 24);
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -86,6 +91,7 @@ public class SkillTree extends Screen {
         this.addRenderableWidget(Button);
         this.buttons.add(Button);
         this.relativePos.add(new Vec2(x, y));
+        this.SkillIDs.add(skill.NAME_ID());
     }
 
     @Override
@@ -107,11 +113,7 @@ public class SkillTree extends Screen {
             this.windowX = (int) (mouseButtonEvent.x() - this.dragX);
             this.windowY = (int) (mouseButtonEvent.y() - this.dragY);
 
-            for (ImageButton button : buttons) {
-                button.setPosition(
-                        this.windowX + (int) relativePos.get(buttons.indexOf(button)).x,
-                        this.windowY + (int) relativePos.get(buttons.indexOf(button)).y);
-            }
+
 
             return true;
         }
