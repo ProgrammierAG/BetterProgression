@@ -15,28 +15,13 @@ public class SkillLogicRunner {
     public static void initialize() {
         BetterProgression.getLogger().info("registering SkillLogicRunner");
         ServerTickEvents.START_SERVER_TICK.register(server -> {
-            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            server.getPlayerList().getPlayers().stream().forEach(player -> {
                 Optional.ofNullable(player.getAttached(Attachments.UNLOCKED_SKILLS))
                         .ifPresent(unlockedSkills -> unlockedSkills.stream()
                                 .map(Skills.SKILLS::get)
                                 .filter(Objects::nonNull)
-                                .forEach(skill -> {
-                                    skill.onTick().process(player, player.level(), 1);
-                                })
+                                .forEach(skill -> skill.onTick().process(player, player.level(), 1))
                         );
-            }
-        });
-        BetterProgression.getLogger().info("registering PlayerJoin Event");
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            handler.player.getAttached(Attachments.UNLOCKED_SKILLS).stream().forEach(Name_ID -> {
-                        Skills.SKILLS.get(Name_ID).onUnlock().process(handler.player, handler.player.level(), 1);
-                    }
-            );
-        });
-
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, sender) -> {
-            handler.player.getAttached(Attachments.UNLOCKED_SKILLS).stream().forEach(Name_ID -> {
-                Skills.SKILLS.get(Name_ID).onReset().process(handler.player, handler.player.level(), 0);
             });
         });
     }

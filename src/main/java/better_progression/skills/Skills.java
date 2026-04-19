@@ -2,7 +2,6 @@ package better_progression.skills;
 
 import better_progression.BetterProgression;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
@@ -21,7 +20,7 @@ public class Skills {
     //Skills
     public static final Skill SPEED = register(new Skill("speed", "speed_desc",
             (player, world, level) -> {
-                player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.1 + (.05 * level));
+                player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.1 + (.01 * level));
             },
             (player, world, level) -> {},
             (player, world, level) -> {
@@ -42,7 +41,7 @@ public class Skills {
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "sword_range")
     ));
 
-    public static final Skill NO_ROTTEN_FLESH_EFFECT = register(new Skill("no_rotten_flesh_effect", "no_rotten_flesh_effect_desc",
+    public static final Skill NO_HUNGER_EFFECT = register(new Skill("no_hunger_effect", "no_hunger_effect_desc",
             (player, world, level) -> {},
             (player, world, level) -> {
                 if (player.hasEffect(MobEffects.HUNGER)) player.removeEffect(MobEffects.HUNGER);

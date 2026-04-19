@@ -2,13 +2,11 @@ package better_progression.UIs;
 
 import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
-import better_progression.skillLogic.Attachments;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.ImageWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
@@ -21,7 +19,7 @@ import net.minecraft.world.phys.Vec2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SkillTree extends Screen {
+public class SkillTreeUI extends Screen {
 
     private int windowX = 0;
     private int windowY = 0;
@@ -36,8 +34,8 @@ public class SkillTree extends Screen {
 
 
 
-    public SkillTree() {
-        super(Component.literal("SkillTree"));
+    public SkillTreeUI() {
+        super(Component.literal("SkillTreeUI"));
     }
 
     @Override

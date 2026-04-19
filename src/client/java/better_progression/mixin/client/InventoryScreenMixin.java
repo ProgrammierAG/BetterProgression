@@ -1,9 +1,8 @@
 package better_progression.mixin.client;
 
 import better_progression.BetterProgression;
-import better_progression.UIs.SkillTree;
+import better_progression.UIs.SkillTreeUI;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -38,7 +37,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
                 iconSprite,
                 button -> {
                     if (this.minecraft != null) {
-                        this.minecraft.setScreen(new SkillTree());
+                        this.minecraft.setScreen(new SkillTreeUI());
                     }
                 }
         );
