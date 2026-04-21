@@ -43,17 +43,13 @@ public class SkillTreeUI extends Screen {
     @Override
     protected void init() {
         // Buttons:
-        try {
-            SkillTree.skillButtons.keySet().forEach(id -> {
-                Skill skill = SkillTree.skillButtons.get(id);
-                Identifier ICON = skill.icon();
-                WidgetSprites widget = new WidgetSprites(ICON);
-                this.genSkillButton(0, (int) (30 * SkillTree.pos.get(id).y), 20, 20, widget, skill);
-            });
 
-        } catch (Exception ignored) {
-
-        }
+        SkillTree.skillButtons.keySet().forEach(id -> {
+            Skill skill = SkillTree.skillButtons.get(id);
+            Identifier ICON = skill.icon();
+            WidgetSprites widget = new WidgetSprites(ICON);
+            this.genSkillButton(0, (int) (30 * SkillTree.pos.get(id).y), 20, 20, widget, skill);
+        });
 
         super.init();
     }
@@ -63,6 +59,7 @@ public class SkillTreeUI extends Screen {
 
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
+        //throws error
         SkillIDs.forEach(id -> {
 
             SkillTree.children.get(id).forEach(child -> {
