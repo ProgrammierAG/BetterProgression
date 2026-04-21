@@ -3,9 +3,8 @@ package better_progression.skillLogic;
 import better_progression.BetterProgression;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
+import net.minecraft.world.phys.Vec2;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,16 +14,14 @@ public class SkillTree {
     public static Map<String, Skill> skillButtons = new HashMap<>();
     public static Map<String, List<String>> children = new HashMap<>();
     public static Map<String, List<String>> parents = new HashMap<>();
-    public static Map<String, Integer> layers = new HashMap<>();
+    public static Map<String, Vec2> pos = new HashMap<>();
 
-    public static final String ROOT = registerNode(null);
     public static final String SPEED_1 = registerNode(Skills.SPEED);
     public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE);
     public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT);
 
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skill tree");
-        connect(ROOT, SPEED_1);
         connect(SPEED_1, ATTACK_RANGE_1);
         connect(ATTACK_RANGE_1, NO_HUNGER_EFFECT_1);
         connect(NO_HUNGER_EFFECT_1, SPEED_1);
@@ -78,7 +75,7 @@ public class SkillTree {
     }
 
     public static int getLayerRecursive(String id) {
-        if (layers.containsKey(id)) return layers.get(id);
+        if (pos.containsKey(id)) return (int) pos.get(id).y;
 
         List<String> parentIDs = parents.getOrDefault(id, List.of());
         int layer = parentIDs.isEmpty() ? 0
@@ -86,7 +83,7 @@ public class SkillTree {
                 .mapToInt(SkillTree::getLayerRecursive)
                 .max().getAsInt() + 1;
 
-        layers.put(id, layer);
+        pos.put(id, new Vec2(0, layer));
         return layer;
     }
 }

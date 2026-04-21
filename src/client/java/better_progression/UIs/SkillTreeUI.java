@@ -2,10 +2,9 @@ package better_progression.UIs;
 
 import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
+import better_progression.skillLogic.SkillTree;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -13,11 +12,11 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec2;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,18 +43,17 @@ public class SkillTreeUI extends Screen {
     @Override
     protected void init() {
         // Buttons:
+        try {
+            SkillTree.skillButtons.keySet().forEach(id -> {
+                Skill skill = SkillTree.skillButtons.get(id);
+                Identifier ICON = skill.icon();
+                WidgetSprites widget = new WidgetSprites(ICON);
+                this.genSkillButton(0, (int) (30 * SkillTree.pos.get(id).y), 20, 20, widget, skill);
+            });
 
-        final int[] offset = {0};
-        for (Skill skill : Skills.SKILLS.values()) {
+        } catch (Exception ignored) {
 
         }
-
-        Skills.SKILLS.values().stream().forEach(skill -> {
-            Identifier ICON = skill.icon();
-            WidgetSprites widget = new WidgetSprites(ICON);
-            this.genSkillButton(offset[0], 0, 20, 20, widget, skill);
-            offset[0] += 25;
-        });
 
         super.init();
     }
@@ -65,7 +63,14 @@ public class SkillTreeUI extends Screen {
 
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
-        buttons.stream().forEach(button -> {
+        SkillIDs.forEach(id -> {
+
+            SkillTree.children.get(id).forEach(child -> {
+
+            });
+        });
+
+        buttons.forEach(button -> {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
             int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
 
@@ -74,6 +79,9 @@ public class SkillTreeUI extends Screen {
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
                     x - 2, y - 2, 24, 24);
         });
+
+
+        //drawLine(guiGraphics, 0, 0, 100, 100, 3, 0xFFFFFFFF);
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
@@ -84,8 +92,7 @@ public class SkillTreeUI extends Screen {
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
         guiGraphics.pose().rotateAbout(angle, 0, 0);
         float length = (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-// Zeichne ein horizontales Rechteck, das durch die Rotation diagonal wird
-        guiGraphics.fill(0, (int)(-width/2), (int)length, (int)(width/2), color);
+        guiGraphics.fill(0, -width/2, (int)length, width/2, color);
         guiGraphics.pose().popMatrix();
     }
 
@@ -120,7 +127,7 @@ public class SkillTreeUI extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double d, double e) {
+    public boolean mouseDragged(@NotNull MouseButtonEvent mouseButtonEvent, double d, double e) {
         if (this.isDragging && mouseButtonEvent.button() == 0) {
             this.windowX = (int) (mouseButtonEvent.x() - this.dragX);
             this.windowY = (int) (mouseButtonEvent.y() - this.dragY);
