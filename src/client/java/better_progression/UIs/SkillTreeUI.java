@@ -4,6 +4,8 @@ import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -11,6 +13,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -73,6 +76,17 @@ public class SkillTreeUI extends Screen {
         });
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    public void drawLine(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int width, int color) {
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(x1, y1, 0);
+        float angle = (float) Math.atan2(y2 - y1, x2 - x1);
+        guiGraphics.pose().rotateAbout(angle, 0, 0);
+        float length = (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+// Zeichne ein horizontales Rechteck, das durch die Rotation diagonal wird
+        guiGraphics.fill(0, (int)(-thickness/2), (int)length, (int)(thickness/2), color);
+        guiGraphics.pose().pop();
     }
 
     public void genSkillButton(int x, int y, int width, int height,

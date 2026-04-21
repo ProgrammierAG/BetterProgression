@@ -4,6 +4,7 @@ import better_progression.items.ModItems;
 import better_progression.skillLogic.Attachments;
 import better_progression.skillLogic.Networking;
 import better_progression.skillLogic.SkillLogicRunner;
+import better_progression.skillLogic.SkillTree;
 import better_progression.skills.Skills;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.api.ModInitializer;
@@ -48,6 +49,7 @@ public class BetterProgression implements ModInitializer {
 		ModItems.initialize();
 		Attachments.initialize();
 		Skills.initialize();
+		SkillTree.initialize();
 		Networking.registerServerReceiver();
 
 		//spawnt SkillpointBottles als Item an verschiedenen Stellen
