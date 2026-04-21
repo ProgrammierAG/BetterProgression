@@ -80,13 +80,13 @@ public class SkillTreeUI extends Screen {
 
     public void drawLine(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int width, int color) {
         guiGraphics.pose().pushMatrix();
-        guiGraphics.pose().translate(x1, y1, 0);
+        guiGraphics.pose().translate(x1, y1);
         float angle = (float) Math.atan2(y2 - y1, x2 - x1);
         guiGraphics.pose().rotateAbout(angle, 0, 0);
         float length = (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 // Zeichne ein horizontales Rechteck, das durch die Rotation diagonal wird
-        guiGraphics.fill(0, (int)(-thickness/2), (int)length, (int)(thickness/2), color);
-        guiGraphics.pose().pop();
+        guiGraphics.fill(0, (int)(-width/2), (int)length, (int)(width/2), color);
+        guiGraphics.pose().popMatrix();
     }
 
     public void genSkillButton(int x, int y, int width, int height,
