@@ -60,12 +60,12 @@ public class SkillTreeUI extends Screen {
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
         //throws error
-        SkillIDs.forEach(id -> {
-
-            SkillTree.children.get(id).forEach(child -> {
-
-            });
-        });
+//        SkillIDs.forEach(id -> {
+//
+//            SkillTree.children.get(id).forEach(child -> {
+//
+//            });
+//        });
 
         buttons.forEach(button -> {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;

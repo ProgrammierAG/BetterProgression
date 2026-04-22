@@ -7,6 +7,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Skills {
     public static Map<String , Skill> SKILLS = new HashMap<>();
@@ -36,9 +37,22 @@ public class Skills {
             },
             (player, world, level) -> {},
             (player, world, level) -> {
-                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(3);
+                (player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE)).setBaseValue(3);
             },
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "sword_range")
+    ));
+
+    public static final Skill PLACING_RANGE = register(new Skill("placing_range","placing_range_desc",
+            (player,world, level) ->  {
+                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(3 +(10 * level));
+            },
+            (player, world, level) -> {},
+            (player, world, level) -> {
+                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(3);
+            },
+            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID,"jumper")
+
+
     ));
 
     public static final Skill NO_HUNGER_EFFECT = register(new Skill("no_hunger_effect", "no_hunger_effect_desc",
@@ -61,3 +75,4 @@ public class Skills {
         BetterProgression.getLogger().info("initializing Skills");
     }
 }
+
