@@ -15,6 +15,7 @@ public class SkillTree {
     public static Map<String, List<String>> children = new HashMap<>();
     public static Map<String, List<String>> parents = new HashMap<>();
     public static Map<String, Vec2> pos = new HashMap<>();
+    public static Map<Integer, List<String>> layers = new HashMap<>();
 
     public static final String SPEED_1 = registerNode(Skills.SPEED);
     public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE);
@@ -77,13 +78,15 @@ public class SkillTree {
     public static int getLayerRecursive(String id) {
         if (pos.containsKey(id)) return (int) pos.get(id).y;
 
+        //Todo: auf neues Layersystem umstellen (Map<Integer, List<String>>)
+
         List<String> parentIDs = parents.getOrDefault(id, List.of());
         int layer = parentIDs.isEmpty() ? 0
                 : parentIDs.stream()
                 .mapToInt(SkillTree::getLayerRecursive)
                 .max().getAsInt() + 1;
 
-        pos.put(id, new Vec2(0, layer));
+        layers.get(layer).add(id);
         return layer;
     }
 }

@@ -48,7 +48,7 @@ public class SkillTreeUI extends Screen {
             Skill skill = SkillTree.skillButtons.get(id);
             Identifier ICON = skill.icon();
             WidgetSprites widget = new WidgetSprites(ICON);
-            this.genSkillButton(0, (int) (30 * SkillTree.pos.get(id).y), 20, 20, widget, skill);
+            this.genSkillButton(0, (int) (30 * SkillTree.pos.get(id).y), 20, 20, id);
         });
 
         super.init();
@@ -59,19 +59,27 @@ public class SkillTreeUI extends Screen {
 
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
-        //throws error
-//        SkillIDs.forEach(id -> {
-//
-//            SkillTree.children.get(id).forEach(child -> {
-//
-//            });
-//        });
-
         buttons.forEach(button -> {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
             int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
 
             button.setPosition(x, y);
+        });
+
+        SkillIDs.forEach(id -> {
+            int Xpos = buttons.get(SkillIDs.indexOf(id)).getX();
+            int Ypos = buttons.get(SkillIDs.indexOf(id)).getY();
+            SkillTree.parents.get(id).forEach(parent -> {
+                int ParentX = buttons.get(SkillIDs.indexOf(parent)).getX();
+                int ParentY = buttons.get(SkillIDs.indexOf(parent)).getY();
+
+                drawLine(guiGraphics, Xpos + 10, Ypos + 10, ParentX + 10, ParentY + 10, 2, 0xFFFFFFFF);
+            });
+        });
+
+        buttons.forEach(button -> {
+            int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
+            int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
 
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
                     x - 2, y - 2, 24, 24);
@@ -90,8 +98,9 @@ public class SkillTreeUI extends Screen {
         guiGraphics.pose().popMatrix();
     }
 
-    public void genSkillButton(int x, int y, int width, int height,
-                               WidgetSprites icon, Skill skill) {
+    public void genSkillButton(int x, int y, int width, int height, String id) {
+        Skill skill = SkillTree.skillButtons.get(id);
+        WidgetSprites icon = new WidgetSprites(skill.icon());
         ImageButton Button = new ImageButton(
                 x, y, width, height,
                 icon,
@@ -104,7 +113,7 @@ public class SkillTreeUI extends Screen {
         this.addRenderableWidget(Button);
         this.buttons.add(Button);
         this.relativePos.add(new Vec2(x, y));
-        this.SkillIDs.add(skill.NAME_ID());
+        this.SkillIDs.add(id);
     }
 
     @Override
