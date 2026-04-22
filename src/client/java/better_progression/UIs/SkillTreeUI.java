@@ -33,6 +33,7 @@ public class SkillTreeUI extends Screen {
     private List<ImageButton> buttons = new ArrayList<>();
     private List<Vec2> relativePos = new ArrayList<>();
     private List<String> SkillIDs = new ArrayList<>();
+    private final int spacing = 30;
 
 
 
@@ -45,10 +46,7 @@ public class SkillTreeUI extends Screen {
         // Buttons:
 
         SkillTree.skillButtons.keySet().forEach(id -> {
-            Skill skill = SkillTree.skillButtons.get(id);
-            Identifier ICON = skill.icon();
-            WidgetSprites widget = new WidgetSprites(ICON);
-            this.genSkillButton(0, (int) (30 * SkillTree.pos.get(id).y), 20, 20, widget, skill);
+            this.genSkillButton(spacing * SkillTree.X_Layer.get(id), spacing * SkillTree.Y_layer.get(id), 20, 20, id);
         });
 
         super.init();
@@ -59,13 +57,6 @@ public class SkillTreeUI extends Screen {
 
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
-        //throws error
-//        SkillIDs.forEach(id -> {
-//
-//            SkillTree.children.get(id).forEach(child -> {
-//
-//            });
-//        });
         buttons.forEach(button -> {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
             int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
@@ -73,16 +64,16 @@ public class SkillTreeUI extends Screen {
             button.setPosition(x, y);
         });
 
-        SkillIDs.forEach(id -> {
-            int Xpos = buttons.get(SkillIDs.indexOf(id)).getX();
-            int Ypos = buttons.get(SkillIDs.indexOf(id)).getY();
-            SkillTree.parents.get(id).forEach(parent -> {
-                int ParentX = buttons.get(SkillIDs.indexOf(parent)).getX();
-                int ParentY = buttons.get(SkillIDs.indexOf(parent)).getY();
-
-                drawLine(guiGraphics, Xpos + 10, Ypos + 10, ParentX + 10, ParentY + 10, 2, 0xFFFFFFFF);
-            });
-        });
+//        SkillIDs.forEach(id -> {
+//            int Xpos = buttons.get(SkillIDs.indexOf(id)).getX();
+//            int Ypos = buttons.get(SkillIDs.indexOf(id)).getY();
+//            SkillTree.parents.get(id).forEach(parent -> {
+//                int ParentX = buttons.get(SkillIDs.indexOf(parent)).getX();
+//                int ParentY = buttons.get(SkillIDs.indexOf(parent)).getY();
+//
+//                drawLine(guiGraphics, Xpos + 10, Ypos + 10, ParentX + 10, ParentY + 10, 2, 0xFFFFFFFF);
+//            });
+//        });
 
         buttons.forEach(button -> {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;

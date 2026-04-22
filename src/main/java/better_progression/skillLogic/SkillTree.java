@@ -3,30 +3,34 @@ package better_progression.skillLogic;
 import better_progression.BetterProgression;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
-import net.minecraft.world.phys.Vec2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class SkillTree {
     public static Map<String, Skill> skillButtons = new HashMap<>();
     public static Map<String, List<String>> children = new HashMap<>();
     public static Map<String, List<String>> parents = new HashMap<>();
-    public static Map<String, Vec2> pos = new HashMap<>();
-    public static Map<Integer, List<String>> layers = new HashMap<>();
+    public static Map<String, Integer> Y_layer = new HashMap<>();
+    public static Map<String, Integer> X_Layer = new HashMap<>();
 
     public static final String SPEED_1 = registerNode(Skills.SPEED);
     public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE);
+    public static final String PLACING_RANGE_1 = registerNode(Skills.PLACING_RANGE);
     public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT);
 
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skill tree");
         connect(SPEED_1, ATTACK_RANGE_1);
+        connect(SPEED_1, PLACING_RANGE_1);
         connect(ATTACK_RANGE_1, NO_HUNGER_EFFECT_1);
-        connect(NO_HUNGER_EFFECT_1, SPEED_1);
+        connect(PLACING_RANGE_1, NO_HUNGER_EFFECT_1);
         calcLayers();
+
     }
 
     public static String registerNode(Skill skill) {
@@ -73,20 +77,31 @@ public class SkillTree {
 
     public static void calcLayers() {
         skillButtons.keySet().forEach(SkillTree::getLayerRecursive);
+
+        Map<Integer, List<String>> nodesInLevel = skillButtons.keySet().stream()
+                .collect(Collectors.groupingBy(Y_layer::get));
+
+        nodesInLevel.forEach((level, ids) -> {
+            ids.sort(String::compareTo);
+
+            IntStream.range(0, ids.size())
+                    .forEach(index -> {
+                        double x = index - (ids.size() / 2.0);
+                        X_Layer.put(ids.get(index), (int) x);
+                    });
+        });
     }
 
-    public static int getLayerRecursive(String id) {
-        if (pos.containsKey(id)) return (int) pos.get(id).y;
 
-        //Todo: auf neues Layersystem umstellen (Map<Integer, List<String>>)
+    public static int getLayerRecursive(String id) {
+        if (Y_layer.containsKey(id)) return (int) Y_layer.get(id);
 
         List<String> parentIDs = parents.getOrDefault(id, List.of());
         int layer = parentIDs.isEmpty() ? 0
                 : parentIDs.stream()
                 .mapToInt(SkillTree::getLayerRecursive)
                 .max().getAsInt() + 1;
-
-        layers.get(layer).add(id);
+        SkillTree.Y_layer.put(id, layer);
         return layer;
     }
 }
