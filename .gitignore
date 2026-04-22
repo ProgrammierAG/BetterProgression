@@ -31,7 +31,10 @@ bin/
 # fabric
 
 src/main/generated
+
 run/
+!run/saves/Testing
+
 
 # java
 
