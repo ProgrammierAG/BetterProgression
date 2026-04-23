@@ -16,7 +16,7 @@ public class SkillTree {
     public static Map<String, List<String>> children = new HashMap<>();
     public static Map<String, List<String>> parents = new HashMap<>();
     public static Map<String, Integer> Y_layer = new HashMap<>();
-    public static Map<String, Integer> X_Layer = new HashMap<>();
+    public static Map<String, Double> X_Layer = new HashMap<>();
 
     public static final String SPEED_1 = registerNode(Skills.SPEED);
     public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE);
@@ -87,7 +87,7 @@ public class SkillTree {
             IntStream.range(0, ids.size())
                     .forEach(index -> {
                         double x = index - (ids.size() / 2.0);
-                        X_Layer.put(ids.get(index), (int) x);
+                        X_Layer.put(ids.get(index), x);
                     });
         });
     }
@@ -103,5 +103,9 @@ public class SkillTree {
                 .max().getAsInt() + 1;
         SkillTree.Y_layer.put(id, layer);
         return layer;
+    }
+
+    public static List<String> getParents(String id) {
+        return parents.get(id);
     }
 }
