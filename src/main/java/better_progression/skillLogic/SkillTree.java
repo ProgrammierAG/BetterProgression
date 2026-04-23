@@ -22,11 +22,13 @@ public class SkillTree {
     public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE);
     public static final String PLACING_RANGE_1 = registerNode(Skills.PLACING_RANGE);
     public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT);
+    public static final String SPEED_IN_WATER_1 = registerNode(Skills.SPEED_IN_WATER);
 
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skill tree");
         connect(SPEED_1, ATTACK_RANGE_1);
-        connect(SPEED_1, PLACING_RANGE_1);
+        //connect(SPEED_1, PLACING_RANGE_1);
+        connect(SPEED_1, SPEED_IN_WATER_1);
         connect(ATTACK_RANGE_1, NO_HUNGER_EFFECT_1);
         connect(PLACING_RANGE_1, NO_HUNGER_EFFECT_1);
         calcLayers();

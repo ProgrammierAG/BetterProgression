@@ -18,7 +18,20 @@ public class Skills {
             BetterProgression.MOD_ID, "task_frame_obtained");
 
 
-    //Skills
+    //Skills:
+    public static final Skill TEST = register(new Skill("test"/*ID*/, "test_desc"/*description ID*/,
+            (player, world, level) -> {
+                //put thing that should be run when activated
+            },
+            (player, world, level) -> {
+                //put thing that should be run every game tick
+            },
+            (player, world, level) -> {
+                //put thing that should be run when skill is reset
+            },
+            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test")
+            // enter name of related image whithout .png in "src/main/resources/assets/better_progression/textures/gui/sprites"
+    ));
     public static final Skill SPEED = register(new Skill("speed", "speed_desc",
             (player, world, level) -> {
                 player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.1 + (.01 * level));
@@ -30,6 +43,16 @@ public class Skills {
             Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_multiplier")
     ));
 
+    public static final Skill SPEED_IN_WATER = register(new Skill("speed_in_water", "speed_in_water_desc",
+            (player, world, level) -> {
+                player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY).setBaseValue(0 + (.01 * level));
+            },
+            (player, world, level) -> {},
+            (player, world, level) -> {
+                player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY).setBaseValue(0);
+            },
+            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_in_water_multiplier")
+    ));
 
     public static final Skill ATTACK_RANGE = register(new Skill("attack_range", "attack_range_desc",
             (player, world, level) -> {
