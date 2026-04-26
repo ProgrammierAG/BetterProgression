@@ -1,0 +1,36 @@
+{
+  "stats": {
+    "minecraft:mined": {
+      "minecraft:short_grass": 1
+    },
+    "minecraft:killed": {
+      "minecraft:sheep": 1
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 2231,
+      "minecraft:walk_one_cm": 984,
+      "minecraft:leave_game": 2,
+      "minecraft:mob_kills": 1,
+      "minecraft:play_time": 2231,
+      "minecraft:damage_dealt": 80,
+      "minecraft:jump": 17,
+      "minecraft:time_since_death": 2231,
+      "minecraft:drop": 86,
+      "minecraft:sprint_one_cm": 485,
+      "minecraft:fall_one_cm": 550,
+      "minecraft:total_world_time": 2415,
+      "minecraft:fly_one_cm": 1716
+    },
+    "minecraft:picked_up": {
+      "minecraft:diamond_horse_armor": 1,
+      "minecraft:brown_wool": 1,
+      "minecraft:mutton": 2,
+      "minecraft:bone": 85
+    },
+    "minecraft:dropped": {
+      "minecraft:bone": 85,
+      "minecraft:diamond_horse_armor": 1
+    }
+  },
+  "DataVersion": 4671
+}

@@ -1,0 +1,24 @@
+{
+  "stats": {
+    "minecraft:picked_up": {
+      "minecraft:bamboo": 2
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 153,
+      "minecraft:walk_one_cm": 33692,
+      "minecraft:leave_game": 1,
+      "minecraft:walk_under_water_one_cm": 343,
+      "minecraft:play_time": 2759,
+      "minecraft:jump": 87,
+      "minecraft:time_since_death": 128,
+      "minecraft:sprint_one_cm": 4519,
+      "minecraft:swim_one_cm": 3179,
+      "minecraft:total_world_time": 3198,
+      "minecraft:fly_one_cm": 46166,
+      "minecraft:walk_on_water_one_cm": 95,
+      "minecraft:climb_one_cm": 1145,
+      "minecraft:deaths": 1
+    }
+  },
+  "DataVersion": 4671
+}

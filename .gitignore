@@ -33,6 +33,7 @@ bin/
 src/main/generated
 
 run/*
+run/saves/*
 !run/saves/Testing/
 
 

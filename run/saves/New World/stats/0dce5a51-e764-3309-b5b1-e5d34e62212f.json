@@ -1,0 +1,27 @@
+{
+  "stats": {
+    "minecraft:mined": {
+      "minecraft:acacia_leaves": 2,
+      "minecraft:dirt": 3
+    },
+    "minecraft:picked_up": {
+      "minecraft:dirt": 3
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 2967,
+      "minecraft:walk_one_cm": 5033,
+      "minecraft:leave_game": 2,
+      "minecraft:damage_taken": 540,
+      "minecraft:play_time": 2967,
+      "minecraft:jump": 18,
+      "minecraft:time_since_death": 2967,
+      "minecraft:sprint_one_cm": 8617,
+      "minecraft:fall_one_cm": 10392,
+      "minecraft:total_world_time": 3350,
+      "minecraft:fly_one_cm": 2710,
+      "minecraft:crouch_one_cm": 654,
+      "minecraft:sneak_time": 513
+    }
+  },
+  "DataVersion": 4671
+}

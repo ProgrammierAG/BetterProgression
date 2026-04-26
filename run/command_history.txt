@@ -1,0 +1,50 @@
+/loot give @s loot minecraft:chests/trial_chambers/reward_ominous
+/give Player685 minecraft:command_block
+/locate structure minecraft:ancient_city
+/tp @s 208 ~ -288
+/time set day
+/reload
+/locate structure minecraft:stronghold
+/tp @s 1232 ~ 1056
+/locate structure minecraft:end_city
+/tp @s -1248 ~ 704
+/kill
+/time set night
+/setworldspawn ~ ~ ~
+/kill
+/weather clear
+/weather thunder
+/weather rain
+/attribute Player206 minecraft:step_height base set 3
+/attribute Player206 minecraft:step_height base set 10
+/kill
+/give Player564 minecraft:elytra
+/attribute Player996 minecraft:step_height base set 3
+/kill
+/attribute Player536 minecraft:max_health base set 10
+/attribute Player536 minecraft:max_health base set 40
+/attribute Player536 minecraft:max_health base set 20
+/attribute Player536 minecraft:max_health base set 40
+/attribute Player536 minecraft:max_health base set 20
+/attribute Player434 minecraft:max_health base set 20
+/kill
+/kill @e
+/attribute Player188 minecraft:movement_speed base set 10
+/kill
+/attribute Player188 minecraft:movement_speed base set 2
+/attribute Player188 minecraft:movement_speed base set 1
+/attribute Player188 minecraft:movement_speed base set 0.5
+/attribute Player631 minecraft:movement_speed get
+/give Player255 minecraft:rotten_flesh 64
+/attribute Player255 minecraft:step_height base reset
+/kill
+/resetSkills
+/resetSkills Player711
+/resetSkills
+/resetSkills Player840
+/resetSkills Player941
+/resetSkills Player465
+/resetSkills Player307
+/resetSkills Player520
+/give Player305 minecraft:rotten_flesh 64
+/resetSkills Player305

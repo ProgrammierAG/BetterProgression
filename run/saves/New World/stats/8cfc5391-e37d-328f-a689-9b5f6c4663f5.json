@@ -1,0 +1,23 @@
+{
+  "stats": {
+    "minecraft:used": {
+      "minecraft:splash_potion": 10
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 2904,
+      "minecraft:walk_one_cm": 3737,
+      "minecraft:leave_game": 1,
+      "minecraft:play_time": 3115,
+      "minecraft:jump": 9,
+      "minecraft:time_since_death": 2866,
+      "minecraft:sprint_one_cm": 1371,
+      "minecraft:fall_one_cm": 550,
+      "minecraft:total_world_time": 3143,
+      "minecraft:fly_one_cm": 1288,
+      "minecraft:crouch_one_cm": 36,
+      "minecraft:sneak_time": 99,
+      "minecraft:deaths": 1
+    }
+  },
+  "DataVersion": 4671
+}

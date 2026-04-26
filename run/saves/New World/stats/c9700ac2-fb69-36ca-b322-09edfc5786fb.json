@@ -1,0 +1,24 @@
+{
+  "stats": {
+    "minecraft:used": {
+      "minecraft:repeating_command_block": 1,
+      "minecraft:redstone_torch": 1,
+      "minecraft:daylight_detector": 1,
+      "minecraft:target": 1,
+      "minecraft:redstone": 1,
+      "minecraft:white_wool": 1
+    },
+    "minecraft:custom": {
+      "minecraft:sprint_one_cm": 14,
+      "minecraft:time_since_rest": 1919,
+      "minecraft:walk_one_cm": 991,
+      "minecraft:total_world_time": 2182,
+      "minecraft:leave_game": 1,
+      "minecraft:fly_one_cm": 115,
+      "minecraft:play_time": 1919,
+      "minecraft:jump": 2,
+      "minecraft:time_since_death": 1919
+    }
+  },
+  "DataVersion": 4671
+}
