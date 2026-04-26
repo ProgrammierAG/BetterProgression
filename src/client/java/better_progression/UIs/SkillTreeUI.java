@@ -33,7 +33,7 @@ public class SkillTreeUI extends Screen {
     private List<ImageButton> buttons = new ArrayList<>();
     private List<Vec2> relativePos = new ArrayList<>();
     private List<String> SkillIDs = new ArrayList<>();
-    private final int spacing = 30;
+    private final int spacing = 40;
 
 
 
@@ -46,7 +46,8 @@ public class SkillTreeUI extends Screen {
         // Buttons:
 
         SkillTree.skillButtons.keySet().forEach(id -> {
-            this.genSkillButton(spacing * SkillTree.X_Layer.get(id), spacing * SkillTree.Y_layer.get(id), 20, 20, id);
+            this.genSkillButton((int) (spacing * SkillTree.X_Layer.get(id)), spacing * SkillTree.Y_layer.get(id),
+                    20, 20, id);
         });
 
         super.init();
@@ -63,17 +64,23 @@ public class SkillTreeUI extends Screen {
 
             button.setPosition(x, y);
         });
+        //Todo: Den LineDrawer richtig impementieren!!
+        SkillIDs.forEach(id -> {
+            int x = (int) (SkillTree.X_Layer.get(id) * spacing + windowX);
+            int y = SkillTree.Y_layer.get(id) * spacing + windowY;
 
-//        SkillIDs.forEach(id -> {
-//            int Xpos = buttons.get(SkillIDs.indexOf(id)).getX();
-//            int Ypos = buttons.get(SkillIDs.indexOf(id)).getY();
-//            SkillTree.parents.get(id).forEach(parent -> {
-//                int ParentX = buttons.get(SkillIDs.indexOf(parent)).getX();
-//                int ParentY = buttons.get(SkillIDs.indexOf(parent)).getY();
-//
-//                drawLine(guiGraphics, Xpos + 10, Ypos + 10, ParentX + 10, ParentY + 10, 2, 0xFFFFFFFF);
-//            });
-//        });
+            try {
+                SkillTree.getParents(id).forEach(parent -> {
+                    int parX = (int) (SkillTree.X_Layer.get(parent) * spacing + windowX);
+                    int parY = SkillTree.Y_layer.get(parent) * spacing + windowY;
+
+                    drawLine(guiGraphics, x + 10, y + 10, parX + 10, parY + 10, 2, 0xFFFFFFFF);
+                });
+            } catch (NullPointerException ignored) {
+
+            }
+
+        });
 
         buttons.forEach(button -> {
             int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
@@ -97,6 +104,7 @@ public class SkillTreeUI extends Screen {
     }
 
     public void genSkillButton(int x, int y, int width, int height, String id) {
+        BetterProgression.getLogger().info("generating new SkillButton for: " + id);
         Skill skill = SkillTree.skillButtons.get(id);
         WidgetSprites icon = new WidgetSprites(skill.icon());
         ImageButton Button = new ImageButton(

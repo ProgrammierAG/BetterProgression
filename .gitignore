@@ -32,8 +32,11 @@ bin/
 
 src/main/generated
 
-run/*
+run/**/*
+!run/saves/
+run/saves/*
 !run/saves/Testing/
+!run/saves/Testing/*
 
 
 # java
