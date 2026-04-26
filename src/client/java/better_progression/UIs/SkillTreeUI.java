@@ -67,16 +67,16 @@ public class SkillTreeUI extends Screen {
         //Todo: Den LineDrawer richtig impementieren!!
         SkillIDs.forEach(id -> {
             int x = (int) (SkillTree.X_Layer.get(id) * spacing + windowX);
-            int y = SkillTree.Y_layer.get(id) * spacing + windowX;
+            int y = SkillTree.Y_layer.get(id) * spacing + windowY;
 
             try {
                 SkillTree.getParents(id).forEach(parent -> {
-                    int parX = (int) (SkillTree.X_Layer.get(id) * spacing + windowX);
-                    int parY = SkillTree.Y_layer.get(id) * spacing + windowY;
+                    int parX = (int) (SkillTree.X_Layer.get(parent) * spacing + windowX);
+                    int parY = SkillTree.Y_layer.get(parent) * spacing + windowY;
 
-                    drawLine(guiGraphics, x, y, parX, parY, 2, 0xFFFFFFFF);
+                    drawLine(guiGraphics, x + 10, y + 10, parX + 10, parY + 10, 2, 0xFFFFFFFF);
                 });
-            } catch (Exception ignored) {
+            } catch (NullPointerException ignored) {
 
             }
 
