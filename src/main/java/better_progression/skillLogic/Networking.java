@@ -25,7 +25,6 @@ public class Networking {
                 BetterProgression.getLogger().info("recived Payload for: " + payload.NAME_ID());
                 if (canUnlock(player, payload.NAME_ID())) {
                     unlockSkillForPlayer(player, payload.NAME_ID());
-                    //player.displayClientMessage(Component.literal("Skill " + payload.NAME_ID() + " freigeschaltet!"), false);
                 }
             });
         });

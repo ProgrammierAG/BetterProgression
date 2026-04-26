@@ -6,18 +6,15 @@ import better_progression.skillLogic.Networking;
 import better_progression.skillLogic.SkillLogicRunner;
 import better_progression.skillLogic.SkillTree;
 import better_progression.skills.Skills;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.vault.VaultBlockEntity;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 
@@ -28,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class BetterProgression implements ModInitializer {
 	public static final String MOD_ID = "better_progression";
@@ -52,7 +49,7 @@ public class BetterProgression implements ModInitializer {
 		SkillTree.initialize();
 		Networking.registerServerReceiver();
 
-		//spawnt SkillpointBottles als Item an verschiedenen Stellen
+		//spawns SkillpointBottles as Item in different locations
 		LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
 
 			if (source.isBuiltin() && (BuiltInLootTables.ANCIENT_CITY == key

@@ -4,10 +4,7 @@ import better_progression.BetterProgression;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -76,22 +73,48 @@ public class SkillTree {
     }
 
     public static void calcLayers() {
+        X_Layer.clear();
         skillButtons.keySet().forEach(SkillTree::getLayerRecursive);
 
         Map<Integer, List<String>> nodesInLevel = skillButtons.keySet().stream()
-                .collect(Collectors.groupingBy(Y_layer::get));
+                .collect(Collectors.groupingBy(Y_layer::get, TreeMap::new, Collectors.toList()));
 
         nodesInLevel.forEach((level, ids) -> {
-            ids.sort(String::compareTo);
+            if (level == 0) {
+                IntStream.range(0, ids.size()).forEach(i ->
+                        X_Layer.put(ids.get(i), i - (ids.size() - 1) / 2.0)
+                );
+            } else {
+                ids.forEach(id -> X_Layer.put(id, parents.getOrDefault(id, List.of()).stream()
+                        .mapToDouble(p -> X_Layer.getOrDefault(p, 0.0))
+                        .average().orElse(0))
+                );
 
-            IntStream.range(0, ids.size())
-                    .forEach(index -> {
-                        double x = index - (ids.size() / 2.0);
-                        X_Layer.put(ids.get(index), x);
-                    });
+                adjustOverlaps(ids);
+            }
         });
     }
 
+    public static void adjustOverlaps(List<String> ids) {
+        double minDist = 1.0;
+
+        double[] lastX = { Double.NEGATIVE_INFINITY };
+
+        ids.stream()
+                .sorted(Comparator.comparingDouble(X_Layer::get))
+                .forEachOrdered(id -> {
+                    double finalX = Math.max(X_Layer.get(id), lastX[0] + minDist);
+                    X_Layer.put(id, finalX);
+                    lastX[0] = finalX;
+                });
+
+        double offset = ids.stream()
+                .mapToDouble(X_Layer::get)
+                .average()
+                .orElse(0.0);
+
+        ids.forEach(id -> X_Layer.put(id, X_Layer.get(id) - offset));
+    }
 
     public static int getLayerRecursive(String id) {
         if (Y_layer.containsKey(id)) return (int) Y_layer.get(id);

@@ -33,7 +33,7 @@ public class SkillTreeUI extends Screen {
     private List<ImageButton> buttons = new ArrayList<>();
     private List<Vec2> relativePos = new ArrayList<>();
     private List<String> SkillIDs = new ArrayList<>();
-    private final int spacing = 30;
+    private final int spacing = 40;
 
 
 
