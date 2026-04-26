@@ -24,7 +24,7 @@ public class SkillTree {
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skill tree");
         connect(SPEED_1, ATTACK_RANGE_1);
-        //connect(SPEED_1, PLACING_RANGE_1);
+        connect(SPEED_1, PLACING_RANGE_1);
         connect(SPEED_1, SPEED_IN_WATER_1);
         connect(ATTACK_RANGE_1, NO_HUNGER_EFFECT_1);
         connect(PLACING_RANGE_1, NO_HUNGER_EFFECT_1);
