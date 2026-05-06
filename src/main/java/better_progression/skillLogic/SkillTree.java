@@ -15,11 +15,11 @@ public class SkillTree {
     public static Map<String, Integer> Y_layer = new HashMap<>();
     public static Map<String, Double> X_Layer = new HashMap<>();
 
-    public static final String SPEED_1 = registerNode(Skills.SPEED);
-    public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE);
-    public static final String PLACING_RANGE_1 = registerNode(Skills.PLACING_RANGE);
-    public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT);
-    public static final String SPEED_IN_WATER_1 = registerNode(Skills.SPEED_IN_WATER);
+    public static final String SPEED_1 = registerNode(Skills.SPEED, 1);
+    public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE, 1);
+    public static final String PLACING_RANGE_1 = registerNode(Skills.PLACING_RANGE, 1);
+    public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT, 1);
+    public static final String SPEED_IN_WATER_1 = registerNode(Skills.SPEED_IN_WATER, 1);
 
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skill tree");
@@ -32,7 +32,7 @@ public class SkillTree {
 
     }
 
-    public static String registerNode(Skill skill) {
+    public static String registerNode(Skill skill, int cost) {
         if (skill != null) {
             long count = skillButtons.values().stream()
                     .filter(skill1 -> skill1.equals(skill))

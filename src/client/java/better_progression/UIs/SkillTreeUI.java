@@ -2,10 +2,12 @@ package better_progression.UIs;
 
 import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
+import better_progression.skillLogic.Attachments;
 import better_progression.skillLogic.SkillTree;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -19,7 +21,9 @@ import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SkillTreeUI extends Screen {
 
@@ -31,8 +35,8 @@ public class SkillTreeUI extends Screen {
     private double dragY = 0;
 
     private List<ImageButton> buttons = new ArrayList<>();
-    private List<Vec2> relativePos = new ArrayList<>();
-    private List<String> SkillIDs = new ArrayList<>();
+    private Map<ImageButton, Vec2> positions = new HashMap<>();
+    private Map<ImageButton, String> IDs = new HashMap<>();
     private final int spacing = 40;
 
 
@@ -59,13 +63,15 @@ public class SkillTreeUI extends Screen {
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
         buttons.forEach(button -> {
-            int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
-            int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
+            int x = (int) positions.get(button).x + windowX;
+            int y = (int) positions.get(button).y + windowY;
 
             button.setPosition(x, y);
         });
-        //Todo: Den LineDrawer richtig impementieren!!
-        SkillIDs.forEach(id -> {
+
+        buttons.forEach(buton -> {
+            String id = IDs.get(buton);
+
             int x = (int) (SkillTree.X_Layer.get(id) * spacing + windowX);
             int y = SkillTree.Y_layer.get(id) * spacing + windowY;
 
@@ -79,15 +85,27 @@ public class SkillTreeUI extends Screen {
             } catch (NullPointerException ignored) {
 
             }
-
         });
 
         buttons.forEach(button -> {
-            int x = ((int) relativePos.get(buttons.indexOf(button)).x) + windowX;
-            int y = ((int) relativePos.get(buttons.indexOf(button)).y) + windowY;
+            int x = (int) positions.get(button).x + windowX;
+            int y = (int) positions.get(button).y + windowY;
 
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
-                    x - 2, y - 2, 24, 24);
+            assert Minecraft.getInstance().player != null;
+            List<String> unlocked_skills = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
+
+            if (unlocked_skills == null) {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
+                        x - 2, y - 2, 24, 24);
+                return;
+            }
+            if (unlocked_skills.contains(IDs.get(button))) {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_UNLOCKED,
+                        x - 2, y - 2, 24, 24);
+            } else {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
+                        x - 2, y - 2, 24, 24);
+            }
         });
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -111,15 +129,15 @@ public class SkillTreeUI extends Screen {
                 x, y, width, height,
                 icon,
                 button -> {
-                    BetterProgression.getLogger().info("sending Payload for: " + skill.NAME_ID());
-                    ClientPlayNetworking.send(new SkillUnlockPayload(skill.NAME_ID()));
+                    BetterProgression.getLogger().info("sending Payload for: " + id);
+                    ClientPlayNetworking.send(new SkillUnlockPayload(id));
                 }
         );
         Button.setTooltip(Tooltip.create(Component.translatable(skill.DESC_ID())));
         this.addRenderableWidget(Button);
         this.buttons.add(Button);
-        this.relativePos.add(new Vec2(x, y));
-        this.SkillIDs.add(id);
+        this.positions.put(Button, new Vec2(x, y));
+        this.IDs.put(Button, id);
     }
 
     @Override

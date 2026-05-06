@@ -18,7 +18,7 @@ public class SkillLogicRunner {
             server.getPlayerList().getPlayers().stream().forEach(player -> {
                 Optional.ofNullable(player.getAttached(Attachments.UNLOCKED_SKILLS))
                         .ifPresent(unlockedSkills -> unlockedSkills.stream()
-                                .map(Skills.SKILLS::get)
+                                .map(SkillTree.skillButtons::get)
                                 .filter(Objects::nonNull)
                                 .forEach(skill -> skill.onTick().process(player, player.level(), 1))
                         );
