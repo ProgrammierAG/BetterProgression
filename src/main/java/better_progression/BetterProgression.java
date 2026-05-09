@@ -1,8 +1,7 @@
 package better_progression;
 
 import better_progression.items.ModItems;
-import better_progression.skillLogic.Attachments;
-import better_progression.skillLogic.Networking;
+import better_progression.networking.Networking;
 import better_progression.skillLogic.SkillLogicRunner;
 import better_progression.skillLogic.SkillTree;
 import better_progression.skills.Skills;
@@ -25,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class BetterProgression implements ModInitializer {
@@ -77,9 +77,14 @@ public class BetterProgression implements ModInitializer {
 					.then(Commands.argument("target", EntityArgument.player())
 							.executes(context -> {
 								ServerPlayer player = EntityArgument.getPlayer(context, "target");
+
 								player.getAttached(Attachments.UNLOCKED_SKILLS).parallelStream().forEach(
-										Name_ID -> Skills.SKILLS.get(Name_ID).onReset().process(player, player.level(), 0));
+										Name -> SkillTree.skillButtons.get(Name).onReset().process(player, player.level(), 0)
+								);
+
 								player.setAttached(Attachments.UNLOCKED_SKILLS, new ArrayList<>());
+
+								player.setAttached(Attachments.SKILL_LEVELS, new HashMap<>());
 
 								context.getSource().sendSuccess(
 										() -> Component.literal("Skills reset for Player: " + player.getScoreboardName()),

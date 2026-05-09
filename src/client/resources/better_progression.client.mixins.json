@@ -6,7 +6,6 @@
 		"InventoryScreenMixin"
 	],
 	"client": [
-		"ExampleClientMixin",
 		"InGameHudMixin"
 	],
 	"injectors": {

@@ -2,7 +2,7 @@ package better_progression.UIs;
 
 import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
-import better_progression.skillLogic.Attachments;
+import better_progression.Attachments;
 import better_progression.skillLogic.SkillTree;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
@@ -16,7 +16,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 
