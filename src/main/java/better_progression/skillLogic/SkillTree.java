@@ -22,13 +22,6 @@ public class SkillTree {
     public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT, 1);
     public static final String NO_HUNGER_EFFECT_2 = registerNode(Skills.NO_HUNGER_EFFECT, 1);
 
-    //temp:
-    public static final String SPEED_2 = registerNode(Skills.SPEED, 1);
-    public static final String SPEED_3 = registerNode(Skills.SPEED, 1);
-    public static final String SPEED_4 = registerNode(Skills.SPEED, 1);
-    public static final String SPEED_5 = registerNode(Skills.SPEED, 1);
-
-
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skill tree");
         connect(SPEED_1, ATTACK_RANGE_1);
@@ -37,12 +30,6 @@ public class SkillTree {
         connect(ATTACK_RANGE_1, NO_HUNGER_EFFECT_1);
         connect(PLACING_RANGE_1, NO_HUNGER_EFFECT_1);
         connect(NO_HUNGER_EFFECT_1, NO_HUNGER_EFFECT_2);
-
-        //temp:
-        connect(NO_HUNGER_EFFECT_2, SPEED_2);
-        connect(SPEED_2, SPEED_3);
-        connect(SPEED_2, SPEED_4);
-        connect(SPEED_2, SPEED_5);
 
         calcLayers();
 
