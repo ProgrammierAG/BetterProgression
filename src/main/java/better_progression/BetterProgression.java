@@ -96,6 +96,29 @@ public class BetterProgression implements ModInitializer {
 					)
 			);
 		});
+
+		//Creates a Command that resets the Skills of a given player
+		CommandRegistrationCallback.EVENT.register((dispatcher,
+													commandBuildContext,
+													commandSelection) -> {
+			dispatcher.register(Commands.literal("resetSkillPoints")
+					.requires(soure -> true)
+					.then(Commands.argument("target", EntityArgument.player())
+							.executes(context -> {
+								ServerPlayer player = EntityArgument.getPlayer(context, "target");
+
+								player.setAttached(Attachments.SKILLPOINTS, 0);
+
+								context.getSource().sendSuccess(
+										() -> Component.literal("SkillPoints reset for Player: " + player.getScoreboardName()),
+										true
+								);
+
+								return 1;
+							})
+					)
+			);
+		});
 	}
 
 	public static Logger getLogger() {

@@ -12,8 +12,9 @@ public class SkillTree {
     public static Map<String, Skill> skillButtons = new HashMap<>();
     public static Map<String, List<String>> children = new HashMap<>();
     public static Map<String, List<String>> parents = new HashMap<>();
-    public static Map<String, Integer> Y_layer = new HashMap<>();
-    public static Map<String, Double> X_Layer = new HashMap<>();
+    public static Map<String, Integer> yLayer = new HashMap<>();
+    public static Map<String, Double> xLayer = new HashMap<>();
+    public static Map<String, Integer> cost = new HashMap<>();
 
     public static final String SPEED_1 = registerNode(Skills.SPEED, 1);
     public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE, 1);
@@ -35,7 +36,7 @@ public class SkillTree {
 
     }
 
-    public static String registerNode(Skill skill, int cost) {
+    public static String registerNode(Skill skill, int price) {
         if (skill != null) {
             long count = skillButtons.values().stream()
                     .filter(skill1 -> skill1.equals(skill))
@@ -43,6 +44,7 @@ public class SkillTree {
             String name = skill.NAME_ID() + "_" + (count + 1);
             BetterProgression.getLogger().info("registering SkillButton for Skill: " + skill.NAME_ID() + ", with name: " + name);
             skillButtons.put(name, skill);
+            cost.put(name, price);
             return name;
         }
         return "root";
@@ -78,20 +80,20 @@ public class SkillTree {
     }
 
     public static void calcLayers() {
-        X_Layer.clear();
+        xLayer.clear();
         skillButtons.keySet().forEach(SkillTree::getLayerRecursive);
 
         Map<Integer, List<String>> nodesInLevel = skillButtons.keySet().stream()
-                .collect(Collectors.groupingBy(Y_layer::get, TreeMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(yLayer::get, TreeMap::new, Collectors.toList()));
 
         nodesInLevel.forEach((level, ids) -> {
             if (level == 0) {
                 IntStream.range(0, ids.size()).forEach(i ->
-                        X_Layer.put(ids.get(i), i - (ids.size() - 1) / 2.0)
+                        xLayer.put(ids.get(i), i - (ids.size() - 1) / 2.0)
                 );
             } else {
-                ids.forEach(id -> X_Layer.put(id, parents.getOrDefault(id, List.of()).stream()
-                        .mapToDouble(p -> X_Layer.getOrDefault(p, 0.0))
+                ids.forEach(id -> xLayer.put(id, parents.getOrDefault(id, List.of()).stream()
+                        .mapToDouble(p -> xLayer.getOrDefault(p, 0.0))
                         .average().orElse(0))
                 );
 
@@ -106,30 +108,30 @@ public class SkillTree {
         double[] lastX = { Double.NEGATIVE_INFINITY };
 
         ids.stream()
-                .sorted(Comparator.comparingDouble(X_Layer::get))
+                .sorted(Comparator.comparingDouble(xLayer::get))
                 .forEachOrdered(id -> {
-                    double finalX = Math.max(X_Layer.get(id), lastX[0] + minDist);
-                    X_Layer.put(id, finalX);
+                    double finalX = Math.max(xLayer.get(id), lastX[0] + minDist);
+                    xLayer.put(id, finalX);
                     lastX[0] = finalX;
                 });
 
         double offset = ids.stream()
-                .mapToDouble(X_Layer::get)
+                .mapToDouble(xLayer::get)
                 .average()
                 .orElse(0.0);
 
-        ids.forEach(id -> X_Layer.put(id, X_Layer.get(id) - offset));
+        ids.forEach(id -> xLayer.put(id, xLayer.get(id) - offset));
     }
 
     public static int getLayerRecursive(String id) {
-        if (Y_layer.containsKey(id)) return (int) Y_layer.get(id);
+        if (yLayer.containsKey(id)) return (int) yLayer.get(id);
 
         List<String> parentIDs = parents.getOrDefault(id, List.of());
         int layer = parentIDs.isEmpty() ? 0
                 : parentIDs.stream()
                 .mapToInt(SkillTree::getLayerRecursive)
                 .max().getAsInt() + 1;
-        SkillTree.Y_layer.put(id, layer);
+        SkillTree.yLayer.put(id, layer);
         return layer;
     }
 

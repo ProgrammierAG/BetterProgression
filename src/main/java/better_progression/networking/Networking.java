@@ -32,11 +32,14 @@ public class Networking {
     }
 
     private static boolean canUnlock(ServerPlayer player, String Name_ID) {
-        return true;
+        Integer skillPoints = player.getAttached(Attachments.SKILLPOINTS);
+
+        int currentPoints = (skillPoints != null) ? skillPoints : 0;
+
+        return currentPoints >= SkillTree.cost.get(Name_ID);
     }
 
     private static void unlockSkillForPlayer(ServerPlayer player, String Name_ID) {
-        //work in progress
         List<String> currentSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
         List<String> newList = (currentSkills == null) ? new ArrayList<>() : new ArrayList<>(currentSkills);
 
@@ -57,6 +60,12 @@ public class Networking {
             newList.add(Name_ID);
 
             player.setAttached(Attachments.UNLOCKED_SKILLS, newList);
+
+
+            int currentPoints = player.getAttachedOrElse(Attachments.SKILLPOINTS, 0);
+
+            player.setAttached(Attachments.SKILLPOINTS, currentPoints - SkillTree.cost.get(Name_ID));
+
 
             SkillTree.skillButtons.get(Name_ID).onUnlock().process(player, player.level(),
                     newMap.get(SkillTree.skillButtons.get(Name_ID).NAME_ID()));

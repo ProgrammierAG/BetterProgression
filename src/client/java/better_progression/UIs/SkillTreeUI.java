@@ -49,7 +49,7 @@ public class SkillTreeUI extends Screen {
         // Buttons:
 
         SkillTree.skillButtons.keySet().forEach(id -> {
-            this.genSkillButton((int) (spacing * SkillTree.X_Layer.get(id)), spacing * SkillTree.Y_layer.get(id),
+            this.genSkillButton((int) (spacing * SkillTree.xLayer.get(id)), spacing * SkillTree.yLayer.get(id),
                     20, 20, id);
         });
 
@@ -71,13 +71,13 @@ public class SkillTreeUI extends Screen {
         buttons.forEach(buton -> {
             String id = IDs.get(buton);
 
-            int x = (int) (SkillTree.X_Layer.get(id) * spacing + windowX);
-            int y = SkillTree.Y_layer.get(id) * spacing + windowY;
+            int x = (int) (SkillTree.xLayer.get(id) * spacing + windowX);
+            int y = SkillTree.yLayer.get(id) * spacing + windowY;
 
             try {
                 SkillTree.getParents(id).forEach(parent -> {
-                    int parX = (int) (SkillTree.X_Layer.get(parent) * spacing + windowX);
-                    int parY = SkillTree.Y_layer.get(parent) * spacing + windowY;
+                    int parX = (int) (SkillTree.xLayer.get(parent) * spacing + windowX);
+                    int parY = SkillTree.yLayer.get(parent) * spacing + windowY;
 
                     drawLine(guiGraphics, x + 10, y + 10, parX + 10, parY + 10, 2, 0xFFFFFFFF);
                 });
