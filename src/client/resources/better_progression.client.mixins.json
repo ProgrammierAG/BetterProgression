@@ -6,7 +6,7 @@
 		"InventoryScreenMixin"
 	],
 	"client": [
-
+		"GuiMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
