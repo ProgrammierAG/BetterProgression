@@ -2,7 +2,7 @@ package better_progression.skillLogic;
 
 import better_progression.Attachments;
 import better_progression.BetterProgression;
-import better_progression.skills.Skill_v1;
+import better_progression.skills.Skill;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,11 +20,11 @@ public class SkillLogicRunner {
                 Map<String, Integer> levels = player.getAttachedOrCreate(Attachments.SKILL_LEVELS, HashMap::new);
 
                 skills.forEach(id -> {
-                    Skill_v1 skillV1 = SkillTree.skillButtons.get(id);
+                    Skill skill = SkillTree.skillButtons.get(id);
 
-                    int level = levels.getOrDefault(skillV1.NAME_ID(), 1);
+                    int level = levels.getOrDefault(skill.id(), 1);
 
-                    skillV1.onTick().process(player, player.level(), level);
+                    skill.tick(player, level);
                 });
 
             });

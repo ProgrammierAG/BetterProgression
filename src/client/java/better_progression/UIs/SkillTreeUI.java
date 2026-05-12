@@ -4,8 +4,8 @@ import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
 import better_progression.Attachments;
 import better_progression.skillLogic.SkillTree;
-import better_progression.skills.Skill_v1;
-import better_progression.skills.Skills_v1;
+import better_progression.skills.Skill;
+import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -94,15 +94,15 @@ public class SkillTreeUI extends Screen {
             List<String> unlocked_skills = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
 
             if (unlocked_skills == null) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills_v1.BUTTON_BACKGROUND,
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
                         x - 2, y - 2, 24, 24);
                 return;
             }
             if (unlocked_skills.contains(IDs.get(button))) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills_v1.BUTTON_BACKGROUND_UNLOCKED,
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_UNLOCKED,
                         x - 2, y - 2, 24, 24);
             } else {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills_v1.BUTTON_BACKGROUND,
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
                         x - 2, y - 2, 24, 24);
             }
         });
@@ -121,18 +121,18 @@ public class SkillTreeUI extends Screen {
     }
 
     public void genSkillButton(int x, int y, int width, int height, String id) {
-        BetterProgression.getLogger().info("generating new SkillButton for: " + id);
-        Skill_v1 skillV1 = SkillTree.skillButtons.get(id);
-        WidgetSprites icon = new WidgetSprites(skillV1.icon());
+        BetterProgression.getLogger().info("generating new SkillButton for: {}", id);
+        Skill skill = SkillTree.skillButtons.get(id);
+        WidgetSprites icon = new WidgetSprites(skill.iconId());
         ImageButton Button = new ImageButton(
                 x, y, width, height,
                 icon,
                 button -> {
-                    BetterProgression.getLogger().info("sending Payload for: " + id);
+                    BetterProgression.getLogger().info("sending Payload for: {}", id);
                     ClientPlayNetworking.send(new SkillUnlockPayload(id));
                 }
         );
-        Button.setTooltip(Tooltip.create(Component.translatable(skillV1.DESC_ID())));
+        Button.setTooltip(Tooltip.create(Component.translatable(skill.id())));
         this.addRenderableWidget(Button);
         this.buttons.add(Button);
         this.positions.put(Button, new Vec2(x, y));

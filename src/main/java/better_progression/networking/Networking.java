@@ -23,7 +23,7 @@ public class Networking {
             ServerPlayer player = context.player();
 
             context.server().execute(() -> {
-                BetterProgression.getLogger().info("recived Payload for: " + payload.NAME_ID());
+                BetterProgression.getLogger().info("recived Payload for: {}", payload.NAME_ID());
                 if (canUnlock(player, payload.NAME_ID())) {
                     unlockSkillForPlayer(player, payload.NAME_ID());
                 }
@@ -46,7 +46,7 @@ public class Networking {
         Map<String, Integer> currentSkillLevels = player.getAttached(Attachments.SKILL_LEVELS);
         Map<String, Integer> newMap = (currentSkillLevels == null) ? new HashMap<>() : new HashMap<>(currentSkillLevels);
 
-        String SkillName = SkillTree.skillButtons.get(Name_ID).NAME_ID();
+        String SkillName = SkillTree.skillButtons.get(Name_ID).id();
 
         if (!newMap.containsKey(SkillName)) {
             newMap.put(SkillName, 1);
@@ -67,11 +67,10 @@ public class Networking {
             player.setAttached(Attachments.SKILLPOINTS, currentPoints - SkillTree.cost.get(Name_ID));
 
 
-            SkillTree.skillButtons.get(Name_ID).onUnlock().process(player, player.level(),
-                    newMap.get(SkillTree.skillButtons.get(Name_ID).NAME_ID()));
+            SkillTree.skillButtons.get(Name_ID).unlock(player, newMap.get(SkillTree.skillButtons.get(Name_ID).id()));
 
-            BetterProgression.getLogger().info("Skill_v1 " + Name_ID + " unlocked");
-            player.displayClientMessage(Component.literal("Skill_v1 " + Name_ID + " unlocked!"), true);
+            BetterProgression.getLogger().info("Skill {} unlocked", Name_ID);
+            player.displayClientMessage(Component.literal("Skill " + Name_ID + " unlocked!"), true);
         }
     }
 }

@@ -1,49 +1,44 @@
 package better_progression.skillLogic;
 
 import better_progression.BetterProgression;
-import better_progression.skills.Skill_v1;
-import better_progression.skills.Skills_v1;
+import better_progression.skills.Skill;
+
+import better_progression.skills.Skills;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SkillTree {
-    public static Map<String, Skill_v1> skillButtons = new HashMap<>();
+    public static Map<String, Skill> skillButtons = new HashMap<>();
     public static Map<String, List<String>> children = new HashMap<>();
     public static Map<String, List<String>> parents = new HashMap<>();
     public static Map<String, Integer> yLayer = new HashMap<>();
     public static Map<String, Double> xLayer = new HashMap<>();
     public static Map<String, Integer> cost = new HashMap<>();
 
-    public static final String SPEED_1 = registerNode(Skills_v1.SPEED, 1);
-    public static final String ATTACK_RANGE_1 = registerNode(Skills_v1.ATTACK_RANGE, 1);
-    public static final String PLACING_RANGE_1 = registerNode(Skills_v1.PLACING_RANGE, 1);
-    public static final String SPEED_IN_WATER_1 = registerNode(Skills_v1.SPEED_IN_WATER, 1);
-    public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills_v1.NO_HUNGER_EFFECT, 1);
-    public static final String NO_HUNGER_EFFECT_2 = registerNode(Skills_v1.NO_HUNGER_EFFECT, 1);
+    public static final String SPEED_1 = registerNode(Skills.SPEED, 1);
+    public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE, 1);
+    public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT, 1);
+
 
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skill_v1 tree");
         connect(SPEED_1, ATTACK_RANGE_1);
-        connect(SPEED_1, PLACING_RANGE_1);
-        connect(SPEED_1, SPEED_IN_WATER_1);
         connect(ATTACK_RANGE_1, NO_HUNGER_EFFECT_1);
-        connect(PLACING_RANGE_1, NO_HUNGER_EFFECT_1);
-        connect(NO_HUNGER_EFFECT_1, NO_HUNGER_EFFECT_2);
 
         calcLayers();
 
     }
 
-    public static String registerNode(Skill_v1 skillV1, int price) {
-        if (skillV1 != null) {
+    public static String registerNode(Skill skill, int price) {
+        if (skill != null) {
             long count = skillButtons.values().stream()
-                    .filter(skill1 -> skill1.equals(skillV1))
+                    .filter(skill1 -> skill1.equals(skill))
                     .count();
-            String name = skillV1.NAME_ID() + "_" + (count + 1);
-            BetterProgression.getLogger().info("registering SkillButton for Skill_v1: " + skillV1.NAME_ID() + ", with name: " + name);
-            skillButtons.put(name, skillV1);
+            String name = skill.id() + "_" + (count + 1);
+            BetterProgression.getLogger().info("registering SkillButton for Skill_v1: {}, with name: {}", skill.id(), name);
+            skillButtons.put(name, skill);
             cost.put(name, price);
             return name;
         }
@@ -55,19 +50,19 @@ public class SkillTree {
         List<String> parentList = parents.computeIfAbsent(child,  list -> new ArrayList<>());
 
         if (childList.size() >= 3) {
-            BetterProgression.getLogger().warn("Max 3 children allowed for SkillButton: " + parent + " ignoring Connection");
+            BetterProgression.getLogger().warn("Max 3 children allowed for SkillButton: {} ignoring Connection", parent);
             return;
         }
         if (parentList.size() >= 3) {
-            BetterProgression.getLogger().warn("Max 3 parents allowed for SkillButton: " + child + " ignoring Connection");
+            BetterProgression.getLogger().warn("Max 3 parents allowed for SkillButton: {} ignoring Connection", child);
             return;
         }
         if (isReachable(child, parent)) {
-            BetterProgression.getLogger().warn("tried to connect SkillButton " + parent + " and " + child +
-                    ", but failed, because loops are not allowed");
+            BetterProgression.getLogger().warn("tried to connect SkillButton {} and {}, but failed, because loops are not allowed",
+                    parent, child);
             return;
         }
-        BetterProgression.getLogger().info("connecting Skills_v1 " + parent + " and " + child);
+        BetterProgression.getLogger().info("connecting Skills_v1 {} and {}", parent, child);
         childList.add(child);
         parentList.add(parent);
     }

@@ -1,6 +1,5 @@
 package better_progression.skills;
 
-import better_progression.BetterProgression;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
