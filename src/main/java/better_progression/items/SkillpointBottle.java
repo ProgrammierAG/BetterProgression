@@ -17,8 +17,8 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 
 public class SkillpointBottle extends Item {
-    public static final String ENGLISH_NAME = "Skill point Bottle";
-    public static final String GERMAN_NAME = "Skill point Flasche";
+    public static final String ENGLISH_NAME = "Skill_v1 point Bottle";
+    public static final String GERMAN_NAME = "Skill_v1 point Flasche";
 
     public static final Identifier ID = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID,
             "skill_point_bottle");

@@ -4,7 +4,7 @@ import better_progression.items.ModItems;
 import better_progression.networking.Networking;
 import better_progression.skillLogic.SkillLogicRunner;
 import better_progression.skillLogic.SkillTree;
-import better_progression.skills.Skills;
+import better_progression.skills.Skills_v1;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -45,7 +45,7 @@ public class BetterProgression implements ModInitializer {
 		SkillLogicRunner.initialize();
 		ModItems.initialize();
 		Attachments.initialize();
-		Skills.initialize();
+		Skills_v1.initialize();
 		SkillTree.initialize();
 		Networking.registerServerReceiver();
 
@@ -68,7 +68,7 @@ public class BetterProgression implements ModInitializer {
 				tableBuilder.pool(poolBuilder.build());
 			}
         });
-		//Creates a Command that resets the Skills of a given player
+		//Creates a Command that resets the Skills_v1 of a given player
 		CommandRegistrationCallback.EVENT.register((dispatcher,
                                                     commandBuildContext,
                                                     commandSelection) -> {
@@ -87,7 +87,7 @@ public class BetterProgression implements ModInitializer {
 								player.setAttached(Attachments.SKILL_LEVELS, new HashMap<>());
 
 								context.getSource().sendSuccess(
-										() -> Component.literal("Skills reset for Player: " + player.getScoreboardName()),
+										() -> Component.literal("Skills_v1 reset for Player: " + player.getScoreboardName()),
 										true
 								);
 
@@ -97,7 +97,7 @@ public class BetterProgression implements ModInitializer {
 			);
 		});
 
-		//Creates a Command that resets the Skills of a given player
+		//Creates a Command that resets the Skills_v1 of a given player
 		CommandRegistrationCallback.EVENT.register((dispatcher,
 													commandBuildContext,
 													commandSelection) -> {

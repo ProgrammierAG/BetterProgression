@@ -1,30 +1,30 @@
 package better_progression.skillLogic;
 
 import better_progression.BetterProgression;
-import better_progression.skills.Skill;
-import better_progression.skills.Skills;
+import better_progression.skills.Skill_v1;
+import better_progression.skills.Skills_v1;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SkillTree {
-    public static Map<String, Skill> skillButtons = new HashMap<>();
+    public static Map<String, Skill_v1> skillButtons = new HashMap<>();
     public static Map<String, List<String>> children = new HashMap<>();
     public static Map<String, List<String>> parents = new HashMap<>();
     public static Map<String, Integer> yLayer = new HashMap<>();
     public static Map<String, Double> xLayer = new HashMap<>();
     public static Map<String, Integer> cost = new HashMap<>();
 
-    public static final String SPEED_1 = registerNode(Skills.SPEED, 1);
-    public static final String ATTACK_RANGE_1 = registerNode(Skills.ATTACK_RANGE, 1);
-    public static final String PLACING_RANGE_1 = registerNode(Skills.PLACING_RANGE, 1);
-    public static final String SPEED_IN_WATER_1 = registerNode(Skills.SPEED_IN_WATER, 1);
-    public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills.NO_HUNGER_EFFECT, 1);
-    public static final String NO_HUNGER_EFFECT_2 = registerNode(Skills.NO_HUNGER_EFFECT, 1);
+    public static final String SPEED_1 = registerNode(Skills_v1.SPEED, 1);
+    public static final String ATTACK_RANGE_1 = registerNode(Skills_v1.ATTACK_RANGE, 1);
+    public static final String PLACING_RANGE_1 = registerNode(Skills_v1.PLACING_RANGE, 1);
+    public static final String SPEED_IN_WATER_1 = registerNode(Skills_v1.SPEED_IN_WATER, 1);
+    public static final String NO_HUNGER_EFFECT_1 = registerNode(Skills_v1.NO_HUNGER_EFFECT, 1);
+    public static final String NO_HUNGER_EFFECT_2 = registerNode(Skills_v1.NO_HUNGER_EFFECT, 1);
 
     public static void initialize() {
-        BetterProgression.getLogger().info("initializing Skill tree");
+        BetterProgression.getLogger().info("initializing Skill_v1 tree");
         connect(SPEED_1, ATTACK_RANGE_1);
         connect(SPEED_1, PLACING_RANGE_1);
         connect(SPEED_1, SPEED_IN_WATER_1);
@@ -36,14 +36,14 @@ public class SkillTree {
 
     }
 
-    public static String registerNode(Skill skill, int price) {
-        if (skill != null) {
+    public static String registerNode(Skill_v1 skillV1, int price) {
+        if (skillV1 != null) {
             long count = skillButtons.values().stream()
-                    .filter(skill1 -> skill1.equals(skill))
+                    .filter(skill1 -> skill1.equals(skillV1))
                     .count();
-            String name = skill.NAME_ID() + "_" + (count + 1);
-            BetterProgression.getLogger().info("registering SkillButton for Skill: " + skill.NAME_ID() + ", with name: " + name);
-            skillButtons.put(name, skill);
+            String name = skillV1.NAME_ID() + "_" + (count + 1);
+            BetterProgression.getLogger().info("registering SkillButton for Skill_v1: " + skillV1.NAME_ID() + ", with name: " + name);
+            skillButtons.put(name, skillV1);
             cost.put(name, price);
             return name;
         }
@@ -67,7 +67,7 @@ public class SkillTree {
                     ", but failed, because loops are not allowed");
             return;
         }
-        BetterProgression.getLogger().info("connecting Skills " + parent + " and " + child);
+        BetterProgression.getLogger().info("connecting Skills_v1 " + parent + " and " + child);
         childList.add(child);
         parentList.add(parent);
     }

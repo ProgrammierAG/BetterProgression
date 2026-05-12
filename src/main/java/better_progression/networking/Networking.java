@@ -70,8 +70,8 @@ public class Networking {
             SkillTree.skillButtons.get(Name_ID).onUnlock().process(player, player.level(),
                     newMap.get(SkillTree.skillButtons.get(Name_ID).NAME_ID()));
 
-            BetterProgression.getLogger().info("Skill " + Name_ID + " unlocked");
-            player.displayClientMessage(Component.literal("Skill " + Name_ID + " unlocked!"), true);
+            BetterProgression.getLogger().info("Skill_v1 " + Name_ID + " unlocked");
+            player.displayClientMessage(Component.literal("Skill_v1 " + Name_ID + " unlocked!"), true);
         }
     }
 }
