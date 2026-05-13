@@ -24,6 +24,11 @@ public class Networking {
 
             context.server().execute(() -> {
                 BetterProgression.getLogger().info("recived Payload for: {}", payload.NAME_ID());
+                if (!SkillTree.skillButtons.containsKey(payload.NAME_ID())) {
+                    BetterProgression.getLogger().warn("Player {} tried to unlock non-existent skill node: {}",
+                            player.getName().getString(), payload.NAME_ID());
+                }
+
                 if (canUnlock(player, payload.NAME_ID())) {
                     unlockSkillForPlayer(player, payload.NAME_ID());
                 }
@@ -33,10 +38,32 @@ public class Networking {
 
     private static boolean canUnlock(ServerPlayer player, String Name_ID) {
         Integer skillPoints = player.getAttached(Attachments.SKILLPOINTS);
-
         int currentPoints = (skillPoints != null) ? skillPoints : 0;
+        if (currentPoints < SkillTree.cost.get(Name_ID)) {
+            return false;
+        }
 
-        return currentPoints >= SkillTree.cost.get(Name_ID);
+        List<String> unlockedSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
+        List<String> activeUnlocked = (unlockedSkills != null) ? unlockedSkills : List.of();
+
+        if (SkillTree.isChoiceNode(Name_ID)) {
+            String partnerId = SkillTree.getChoicePartner(Name_ID);
+            if (activeUnlocked.contains(partnerId)) {
+                player.displayClientMessage(Component.literal("Pfad blockiert! Du hast bereits die alternative Fähigkeit gewählt."), true);
+                return false;
+            }
+        }
+
+        List<String> parents = SkillTree.parents.get(Name_ID);
+        if (parents != null && !parents.isEmpty()) {
+            boolean hasUnlockedParent = parents.stream().anyMatch(activeUnlocked::contains);
+            if (!hasUnlockedParent) {
+                player.displayClientMessage(Component.literal("Du musst zuerst die vorherigen Fähigkeiten freischalten!"), true);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static void unlockSkillForPlayer(ServerPlayer player, String Name_ID) {

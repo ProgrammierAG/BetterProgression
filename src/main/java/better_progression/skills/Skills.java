@@ -16,6 +16,9 @@ public class Skills {
     public static final Identifier BUTTON_BACKGROUND_UNLOCKED = Identifier.fromNamespaceAndPath(
             BetterProgression.MOD_ID, "task_frame_obtained");
 
+    public static final Identifier BUTTON_BACKGROUND_BLOCKED = Identifier.withDefaultNamespace(
+            "textures/missingno");
+
     // ----- Skills -----
     public static final Skill EXAMPLE = register(Skill
             .builder("example") //the skills id

@@ -19,10 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SkillTreeUI extends Screen {
 
@@ -46,11 +43,22 @@ public class SkillTreeUI extends Screen {
 
     @Override
     protected void init() {
+        buttons.clear();
+        positions.clear();
+        IDs.clear();
         // Buttons:
 
         SkillTree.skillButtons.keySet().forEach(id -> {
-            this.genSkillButton((int) (spacing * SkillTree.xLayer.get(id)), spacing * SkillTree.yLayer.get(id),
-                    20, 20, id);
+            int baseX = (int) (spacing * SkillTree.xLayer.get(id));
+            int baseY = spacing * SkillTree.yLayer.get(id);
+
+            if (SkillTree.isChoiceNode(id)) {
+                String partner = SkillTree.getChoicePartner(id);
+                int offset = (id.compareTo(partner) < 0) ? -12 : 12;
+                this.genSkillButton(baseX + offset, baseY, 20, 20, id);
+            } else {
+                this.genSkillButton(baseX, baseY, 20, 20, id);
+            }
         });
 
         super.init();
@@ -58,8 +66,11 @@ public class SkillTreeUI extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xD0101010);
 
-        guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
+        assert Minecraft.getInstance().player != null;
+        List<String> unlocked_skills = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
+        List<String> activeUnlocked = unlocked_skills != null ? unlocked_skills : List.of();
 
         buttons.forEach(button -> {
             int x = (int) positions.get(button).x + windowX;
@@ -68,37 +79,54 @@ public class SkillTreeUI extends Screen {
             button.setPosition(x, y);
         });
 
-        buttons.forEach(buton -> {
-            String id = IDs.get(buton);
+        buttons.forEach(button -> {
+            String id = IDs.get(button);
+            int x = (int) (positions.get(button).x + windowX);
+            int y = (int) (positions.get(button).y + windowY);
 
-            int x = (int) (SkillTree.xLayer.get(id) * spacing + windowX);
-            int y = SkillTree.yLayer.get(id) * spacing + windowY;
+            Optional.ofNullable(SkillTree.getParents(id)).ifPresent(parents ->
+                    parents.forEach(parent -> {
+                        buttons.stream()
+                                .filter(b -> IDs.get(b).equals(parent))
+                                .findFirst()
+                                .ifPresent(parentButton -> {
+                                    int parX = (int) (positions.get(parentButton).x + windowX);
+                                    int parY = (int) (positions.get(parentButton).y + windowY);
 
-            try {
-                SkillTree.getParents(id).forEach(parent -> {
-                    int parX = (int) (SkillTree.xLayer.get(parent) * spacing + windowX);
-                    int parY = SkillTree.yLayer.get(parent) * spacing + windowY;
+                                    int lineColor;
 
-                    drawLine(guiGraphics, x + 10, y + 10, parX + 10, parY + 10, 2, 0xFFFFFFFF);
-                });
-            } catch (NullPointerException ignored) {
+                                    if (isBlockedByChoice(id, activeUnlocked) ||
+                                            isBlockedByChoice(parent, activeUnlocked)) {
+                                        lineColor = 0x40FF0000;
+                                    }
+                                    else if (activeUnlocked.contains(parent) &&
+                                            activeUnlocked.contains(id)) {
+                                        lineColor = 0xFF55FF55;
+                                    }
+                                    else {
+                                        lineColor = 0x40888888;
+                                    }
 
-            }
+                                    drawLine(guiGraphics, x + 10, y + 10,
+                                            parX + 10, parY + 10, 2, lineColor);
+                                });
+                    })
+            );
         });
 
         buttons.forEach(button -> {
             int x = (int) positions.get(button).x + windowX;
             int y = (int) positions.get(button).y + windowY;
+            String id = IDs.get(button);
 
-            assert Minecraft.getInstance().player != null;
-            List<String> unlocked_skills = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
+            boolean isUnlocked = activeUnlocked.contains(id);
 
-            if (unlocked_skills == null) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND,
+            boolean isChoiceBlocked = isBlockedByChoice(id, activeUnlocked);
+
+            if (isChoiceBlocked) {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_BLOCKED,
                         x - 2, y - 2, 24, 24);
-                return;
-            }
-            if (unlocked_skills.contains(IDs.get(button))) {
+            } else if (isUnlocked) {
                 guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_UNLOCKED,
                         x - 2, y - 2, 24, 24);
             } else {
@@ -108,6 +136,19 @@ public class SkillTreeUI extends Screen {
         });
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    private boolean isBlockedByChoice(String id, List<String> activeUnlocked) {
+        if (SkillTree.isChoiceNode(id) && activeUnlocked.contains(SkillTree.getChoicePartner(id))) {
+            return true;
+        }
+
+        List<String> parents = SkillTree.parents.get(id);
+        if (parents == null || parents.isEmpty()) {
+            return false;
+        }
+
+        return parents.stream().allMatch(parent -> isBlockedByChoice(parent, activeUnlocked));
     }
 
     public void drawLine(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int width, int color) {
@@ -128,6 +169,14 @@ public class SkillTreeUI extends Screen {
                 x, y, width, height,
                 icon,
                 button -> {
+                    assert Minecraft.getInstance().player != null;
+                    List<String> unlocked = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
+
+                    if (SkillTree.isChoiceNode(id) && unlocked != null &&
+                            unlocked.contains(SkillTree.getChoicePartner(id))) {
+                        return;
+                    }
+
                     BetterProgression.getLogger().info("sending Payload for: {}", id);
                     ClientPlayNetworking.send(new SkillUnlockPayload(id));
                 }
