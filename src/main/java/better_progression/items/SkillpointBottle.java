@@ -3,6 +3,7 @@ package better_progression.items;
 import better_progression.Attachments;
 import better_progression.BetterProgression;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,12 +14,13 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 
 public class SkillpointBottle extends Item {
-    public static final String ENGLISH_NAME = "Skill_v1 point Bottle";
-    public static final String GERMAN_NAME = "Skill_v1 point Flasche";
+    public static final String ENGLISH_NAME = "Skill point Bottle";
+    public static final String GERMAN_NAME = "Skill point Flasche";
 
     public static final Identifier ID = Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID,
             "skill_point_bottle");
@@ -43,21 +45,44 @@ public class SkillpointBottle extends Item {
 
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             Integer currentPoints = serverPlayer.getAttached(Attachments.SKILLPOINTS);
-            int newPoints = (currentPoints != null ? currentPoints : 0) + 1;
+            int pointsBefore = (currentPoints != null ? currentPoints : 0);
 
-            serverPlayer.setAttached(Attachments.SKILLPOINTS, newPoints);
+            if (serverPlayer.isCrouching()) {
+                int stackSize = itemStack.getCount();
 
-            level.playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
-                    SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS, 0.5f, 1.0f);
+                serverPlayer.setAttached(Attachments.SKILLPOINTS, pointsBefore + stackSize);
 
-            if (!serverPlayer.getAbilities().instabuild) {
-                itemStack.shrink(1);
+                level.playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                        SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS, 0.5f, 1.3f);
+
+                if (!serverPlayer.getAbilities().instabuild) {
+                    ItemStack emptyBottles = new ItemStack(Items.GLASS_BOTTLE, stackSize);
+
+                    itemStack.setCount(0);
+
+                    if (!serverPlayer.getInventory().add(emptyBottles)) {
+                        serverPlayer.drop(emptyBottles, false);
+                    }
+                }
+
+            } else {
+                serverPlayer.setAttached(Attachments.SKILLPOINTS, pointsBefore + 1);
+
+                level.playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                        SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS, 0.5f, 1.0f);
+
+                if (!serverPlayer.getAbilities().instabuild) {
+                    itemStack.shrink(1);
+
+                    ItemStack singleBottle = new ItemStack(Items.GLASS_BOTTLE);
+                    if (!serverPlayer.getInventory().add(singleBottle)) {
+                        serverPlayer.drop(singleBottle, false);
+                    }
+                }
+
             }
-
             return InteractionResult.CONSUME;
         }
-
-
         return InteractionResult.SUCCESS;
     }
 }

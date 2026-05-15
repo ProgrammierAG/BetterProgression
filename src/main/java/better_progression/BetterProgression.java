@@ -3,7 +3,8 @@ package better_progression;
 import better_progression.items.ModItems;
 import better_progression.networking.Networking;
 import better_progression.skillLogic.SkillLogicRunner;
-import better_progression.skillLogic.SkillTree;
+import better_progression.skillTree.SkillTree;
+import better_progression.skillTree.SkillTrees;
 import better_progression.skills.Skills;
 import net.fabricmc.api.ModInitializer;
 
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 
 public class BetterProgression implements ModInitializer {
@@ -50,8 +53,9 @@ public class BetterProgression implements ModInitializer {
 
 		Skills.initialize();
 
-		SkillTree.initialize();
 		Networking.registerServerReceiver();
+
+		SkillTrees.initialize();
 
 		//spawns SkillpointBottles as Item in different locations
 		LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
@@ -73,25 +77,31 @@ public class BetterProgression implements ModInitializer {
 			}
         });
 		//Creates a Command that resets the Skills of a given player
-		CommandRegistrationCallback.EVENT.register((dispatcher,
-                                                    commandBuildContext,
-                                                    commandSelection) -> {
+		CommandRegistrationCallback.EVENT.register((dispatcher, commandBuildContext, commandSelection) -> {
 			dispatcher.register(Commands.literal("resetSkills")
-					.requires(soure -> true)
+					.requires(source -> true)
 					.then(Commands.argument("target", EntityArgument.player())
 							.executes(context -> {
 								ServerPlayer player = EntityArgument.getPlayer(context, "target");
 
-								player.getAttached(Attachments.UNLOCKED_SKILLS).parallelStream().forEach(
-										Name -> SkillTree.skillButtons.get(Name).reset(player, 0)
-								);
+								List<String> unlockedSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
 
+								if (unlockedSkills != null) {
+									unlockedSkills.parallelStream().forEach(name -> {
+										SkillTree.REGISTRY.values().stream()
+												.map(tree -> tree.getSkillButtons().get(name))
+												.filter(Objects::nonNull)
+												.findFirst()
+												.ifPresent(skill -> {
+													skill.reset(player, 0);
+												});
+									});
+								}
 								player.setAttached(Attachments.UNLOCKED_SKILLS, new ArrayList<>());
-
 								player.setAttached(Attachments.SKILL_LEVELS, new HashMap<>());
 
 								context.getSource().sendSuccess(
-										() -> Component.literal("Skills_v1 reset for Player: " + player.getScoreboardName()),
+										() -> Component.literal("Skills reset for Player: " + player.getScoreboardName()),
 										true
 								);
 
@@ -101,7 +111,7 @@ public class BetterProgression implements ModInitializer {
 			);
 		});
 
-		//Creates a Command that resets the Skills_v1 of a given player
+		//Creates a Command that resets the Skillpoints of a given player
 		CommandRegistrationCallback.EVENT.register((dispatcher,
 													commandBuildContext,
 													commandSelection) -> {

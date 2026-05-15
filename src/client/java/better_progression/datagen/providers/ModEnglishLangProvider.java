@@ -1,6 +1,7 @@
 package better_progression.datagen.providers;
 
 import better_progression.items.SkillpointBottle;
+import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.core.HolderLookup;
@@ -20,6 +21,8 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
     public void generateTranslations(HolderLookup.Provider holderLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add(SKILLPOINT_BOTTLE, SkillpointBottle.ENGLISH_NAME);
 
+        translationBuilder.add("tooltip.betterprogression.cost", "Cost: %d Skill points");
 
+        ModSkillTranslationHandler.generateSkillTranslations(translationBuilder, LANGUAGE_CODE);
     }
 }
