@@ -11,8 +11,10 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
 
 public class SkillLogicRunner {
+    private static final SkillContext context = new SkillContext(null, 0);
 
     public static void initialize() {
+
         BetterProgression.getLogger().info("registering SkillLogicRunner for multiple trees");
 
         ServerTickEvents.START_SERVER_TICK.register(server -> {
@@ -20,10 +22,15 @@ public class SkillLogicRunner {
                 List<String> skills = player.getAttachedOrCreate(Attachments.UNLOCKED_SKILLS, ArrayList::new);
                 Map<String, Integer> levels = player.getAttachedOrCreate(Attachments.SKILL_LEVELS, HashMap::new);
 
+                context.setPlayer(player);
+
                 skills.forEach(id -> {
                     getSkillFromRegistry(id).ifPresent(skill -> {
                         int level = levels.getOrDefault(skill.id(), 1);
-                        skill.tick(player, level);
+
+                        context.setSkillLevel(level);
+
+                        skill.tick(context);
                     });
                 });
             });

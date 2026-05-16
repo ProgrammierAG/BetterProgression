@@ -45,7 +45,8 @@ public class SkillTree {
 
         String name = treeId.getPath() + "_" + skill.id() + "_" + (count + 1);
 
-        BetterProgression.getLogger().info("[{}] Registering SkillButton: {}, with unique name: {}", treeId, skill.id(), name);
+        BetterProgression.getLogger().info("[{}] Registering SkillButton: {}, with unique name: {} and price {}",
+                treeId, skill.id(), name, price);
 
         skillButtons.put(name, skill);
         cost.put(name, price);
@@ -60,19 +61,16 @@ public class SkillTree {
         List<String> parentsA = parents.computeIfAbsent(nodeA, k -> new ArrayList<>());
         List<String> parentsB = parents.computeIfAbsent(nodeB, k -> new ArrayList<>());
 
-        // Nutzung eines Sets, um alle einzigartigen Eltern absolut sicher und ohne Duplikate zu sammeln
         Set<String> combinedParents = new HashSet<>();
         combinedParents.addAll(parentsA);
         combinedParents.addAll(parentsB);
 
-        // Die ursprünglichen Listen leeren und mit den kombinierten, eindeutigen Werten füllen
         parentsA.clear();
         parentsA.addAll(combinedParents);
 
         parentsB.clear();
         parentsB.addAll(combinedParents);
 
-        // Rückverbindungen in den Kinder-Listen der Eltern eintragen
         parentsA.forEach(parent -> {
             List<String> parentChildren = children.computeIfAbsent(parent, k -> new ArrayList<>());
             if (!parentChildren.contains(nodeA)) parentChildren.add(nodeA);

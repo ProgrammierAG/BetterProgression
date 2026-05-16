@@ -40,12 +40,6 @@ public class SkillTreeBuilder {
         String generatedId = this.tree.registerNode(skill, price);
         this.aliasMap.put(uniqueAlias, generatedId);
 
-        if (skill == null) {
-            BetterProgression.getLogger().info("[SkillTree - {}] -> Registered structural ROOT node '{}'", treeId, alias);
-        } else {
-            BetterProgression.getLogger().info("[SkillTree - {}] -> Registered node '{}' (Cost: {} points) using skill: {}",
-                    treeId, alias, price, skill.id());
-        }
         return this;
     }
 
@@ -57,16 +51,15 @@ public class SkillTreeBuilder {
         String childId = aliasMap.get(uniqueChild);
 
         if (parentId == null) {
-            BetterProgression.getLogger().error("[SkillTree - {}] CONNECTION ERROR: The parent name '{}' does not exist!", treeId, parentAlias);
+            BetterProgression.getLogger().error("[SkillTreeBuilder - {}] CONNECTION ERROR: The parent name '{}' does not exist!", treeId, parentAlias);
             return this;
         }
         if (childId == null) {
-            BetterProgression.getLogger().error("[SkillTree - {}] CONNECTION ERROR: The child name '{}' does not exist!", treeId, childAlias);
+            BetterProgression.getLogger().error("[SkillTreeBuilder - {}] CONNECTION ERROR: The child name '{}' does not exist!", treeId, childAlias);
             return this;
         }
 
         this.tree.connect(parentId, childId);
-        BetterProgression.getLogger().info("[SkillTree - {}] -> Connected path: '{}' leads to '{}'", treeId, parentAlias, childAlias);
         return this;
     }
 
@@ -78,24 +71,23 @@ public class SkillTreeBuilder {
         String idB = aliasMap.get(uniqueB);
 
         if (idA == null) {
-            BetterProgression.getLogger().error("[SkillTree - {}] CHOICE ERROR: The name '{}' does not exist!", treeId, aliasA);
+            BetterProgression.getLogger().error("[SkillTreeBuilder - {}] CHOICE ERROR: The name '{}' does not exist!", treeId, aliasA);
             return this;
         }
         if (idB == null) {
-            BetterProgression.getLogger().error("[SkillTree - {}] CHOICE ERROR: The name '{}' does not exist!", treeId, aliasB);
+            BetterProgression.getLogger().error("[SkillTreeBuilder - {}] CHOICE ERROR: The name '{}' does not exist!", treeId, aliasB);
             return this;
         }
 
         this.tree.mergeToChoice(idA, idB);
-        BetterProgression.getLogger().info("[SkillTree - {}] -> Exclusive Choice created: '{}' OR '{}'", treeId, aliasA, aliasB);
 
         return this;
     }
 
     public SkillTree build() {
-        BetterProgression.getLogger().info("[SkillTree - {}] Processing layout and calculating layers...", treeId);
+        BetterProgression.getLogger().info("[SkillTreeBuilder - {}] Processing layout and calculating layers...", treeId);
         this.tree.calcLayers();
-        BetterProgression.getLogger().info("[SkillTree - {}] SUCCESS: Tree generated with {} nodes.", treeId, aliasMap.size());
+        BetterProgression.getLogger().info("[SkillTreeBuilder - {}] SUCCESS: Tree generated with {} nodes.", treeId, aliasMap.size());
         SkillTree.REGISTRY.put(this.tree.getTreeId(), this.tree);
         return this.tree;
     }

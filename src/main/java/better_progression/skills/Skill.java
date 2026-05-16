@@ -1,14 +1,14 @@
 package better_progression.skills;
 
+import better_progression.skillLogic.SkillAction;
+import better_progression.skillLogic.SkillCondition;
+import better_progression.skillLogic.SkillContext;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 
 public record Skill(
         String id,
@@ -16,32 +16,32 @@ public record Skill(
         Identifier iconId,
         Map<String, Map<String, String>> translations,
         List<TickAction> tickActions,
-        List<BiConsumer<ServerPlayer, Integer>> unlockActions,
-        List<BiConsumer<ServerPlayer, Integer>> resetActions
+        List<SkillAction> unlockActions,
+        List<SkillAction> resetActions
 ) {
     public record TickAction(
-            BiPredicate<ServerPlayer, Integer> condition,
-            BiConsumer<ServerPlayer, Integer> action,
-            BiConsumer<ServerPlayer, Integer> elseAction
+            SkillCondition condition,
+            SkillAction action,
+            SkillAction elseAction
     ) {}
 
     public static Builder builder(String id) {
         return new Builder(id);
     }
 
-    public void tick(ServerPlayer p, int l) {
+    public void tick(SkillContext context) {
         tickActions.forEach(a -> {
-            if (a.condition().test(p, l)) a.action().accept(p, l);
-            else if (a.elseAction() != null) a.elseAction().accept(p, l);
+            if (a.condition().test(context)) a.action().accept(context);
+            else if (a.elseAction() != null) a.elseAction().accept(context);
         });
     }
 
-    public void unlock(ServerPlayer p, int l) {
-        unlockActions.forEach(a -> a.accept(p, l));
+    public void unlock(SkillContext context) {
+        unlockActions.forEach(a -> a.accept(context));
     }
 
-    public void reset(ServerPlayer p, int l) {
-        resetActions.forEach(a -> a.accept(p, l));
+    public void reset(SkillContext context) {
+        resetActions.forEach(a -> a.accept(context));
     }
 
     public static class Builder {
@@ -50,12 +50,12 @@ public record Skill(
         private Identifier iconId;
         private final Map<String, Map<String, String>> translations = new HashMap<>();
         private final List<TickAction> tickActions = new ArrayList<>();
-        private final List<BiConsumer<ServerPlayer, Integer>> unlockActions = new ArrayList<>();
-        private final List<BiConsumer<ServerPlayer, Integer>> resetActions = new ArrayList<>();
+        private final List<SkillAction> unlockActions = new ArrayList<>();
+        private final List<SkillAction> resetActions = new ArrayList<>();
 
-        private BiConsumer<ServerPlayer, Integer> currentTickAction;
-        private BiConsumer<ServerPlayer, Integer> currentElseAction;
-        private BiPredicate<ServerPlayer, Integer> currentCondition;
+        private SkillAction currentTickAction;
+        private SkillAction currentElseAction;
+        private SkillCondition currentCondition;
 
         public Builder(String id) {
             this.id = id;
@@ -92,31 +92,31 @@ public record Skill(
         public Builder en(String name, String desc) { return translateName("en_us", name).translateDesc("en_us", desc); }
 
         // ----- Logic -----
-        public Builder action(BiConsumer<ServerPlayer, Integer> action) {
+        public Builder action(SkillAction action) {
             saveCurrentTick();
             this.currentTickAction = action;
-            this.currentCondition = (p, l) -> true;
+            this.currentCondition = (ctx) -> true;
             this.currentElseAction = null;
             return this;
         }
 
-        public Builder when(BiPredicate<ServerPlayer, Integer> condition) {
+        public Builder when(SkillCondition condition) {
             this.currentCondition = condition;
             return this;
         }
 
-        public Builder elseAction(BiConsumer<ServerPlayer, Integer> elseAction) {
+        public Builder elseAction(SkillAction elseAction) {
             this.currentElseAction = elseAction;
             return this;
         }
 
-        public Builder onUnlock(BiConsumer<ServerPlayer, Integer> action) {
+        public Builder onUnlock(SkillAction action) {
             saveCurrentTick();
             unlockActions.add(action);
             return this;
         }
 
-        public Builder onReset(BiConsumer<ServerPlayer, Integer> action) {
+        public Builder onReset(SkillAction action) {
             saveCurrentTick();
             resetActions.add(action);
             return this;

@@ -7,6 +7,7 @@ import better_progression.skillTree.SkillTree;
 import better_progression.skills.Skill;
 import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -220,31 +221,31 @@ public class SkillTreeUI extends Screen {
             List<String> activeUnlocked = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
             List<String> unlockedList = (activeUnlocked != null) ? activeUnlocked : List.of();
 
-            // 1. Bereits gekauft? oder durch Choice blockiert? -> Abbrechen
             if (unlockedList.contains(id) || isBlockedByChoice(id, tree, unlockedList)) return;
 
-            // 2. Eltern-Bedingung prüfen
             List<String> parents = tree.getParents(id);
             if (parents != null && !parents.isEmpty()) {
-                // Wenn der Skill echte Eltern hat, muss mindestens einer davon gekauft sein
                 boolean hasUnlockedParent = parents.stream().anyMatch(unlockedList::contains);
                 if (!hasUnlockedParent) {
-                    return; // Abbrechen, da der Vorgänger fehlt
+                    return;
                 }
             }
-            // HINWEIS: Wenn 'parents' null oder leer ist, ist es ein Startknoten.
-            // Er hängt an der GLOBAL_ROOT und überspringt diese Prüfung automatisch!
 
-            // 3. Kosten prüfen
             if (Minecraft.getInstance().player.getAttachedOrElse(Attachments.SKILLPOINTS, 0) < tree.getCost().get(id)) return;
 
-            // Paket an den Server senden
             ClientPlayNetworking.send(new SkillUnlockPayload(id));
         });
 
-        button.setTooltip(Tooltip.create(Component.translatable(skill.id()).withStyle(net.minecraft.ChatFormatting.GOLD)
-                .append(Component.literal("\n")).append(Component.translatable(skill.desc_id()).withStyle(net.minecraft.ChatFormatting.GRAY, net.minecraft.ChatFormatting.ITALIC))
-                .append(Component.literal("\n\n")).append(Component.translatable("tooltip.betterprogression.cost", tree.getCost().getOrDefault(id, 0)).withStyle(net.minecraft.ChatFormatting.DARK_GREEN))));
+        button.setTooltip(Tooltip.create(Component.translatable(skill.id())
+                .withStyle(ChatFormatting.GOLD)
+
+                .append(Component.literal("\n")).append(Component.translatable(
+                        skill.desc_id())
+                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))
+
+                .append(Component.literal("\n\n")).append(Component.translatable(
+                        "tooltip.betterprogression.cost", tree.getCost().getOrDefault(id, 0))
+                        .withStyle(ChatFormatting.DARK_GREEN))));
 
         this.addRenderableWidget(button);
         this.buttons.add(button);
