@@ -2,100 +2,227 @@ package better_progression.skills;
 
 import better_progression.BetterProgression;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class Skills {
     public static Map<String , Skill> SKILLS = new HashMap<>();
-    public static final Identifier BUTTON_BACKGROUND = Identifier.fromNamespaceAndPath(
+    public static final Identifier BUTTON_BACKGROUND_UNOBTAINED = Identifier.fromNamespaceAndPath(
             BetterProgression.MOD_ID, "task_frame_unobtained");
 
-    public static final Identifier BUTTON_BACKGROUND_UNLOCKED = Identifier.fromNamespaceAndPath(
+    public static final Identifier BUTTON_BACKGROUND_UNOBTAINABLE = Identifier.fromNamespaceAndPath(
+            BetterProgression.MOD_ID, "task_frame_unobtainable");
+
+    public static final Identifier BUTTON_BACKGROUND_OBTAINED = Identifier.fromNamespaceAndPath(
             BetterProgression.MOD_ID, "task_frame_obtained");
 
+    public static final Identifier BUTTON_BACKGROUND_BLOCKED = Identifier.fromNamespaceAndPath(
+            BetterProgression.MOD_ID, "task_frame_blocked"
+    );
 
-    //Skills:
-    public static final Skill TEST = register(new Skill("test"/*ID*/, "test_desc"/*description ID*/,
-            (player, world, level) -> {
-                //put thing that should be run when activated
-            },
-            (player, world, level) -> {
-                //put thing that should be run every game tick
-            },
-            (player, world, level) -> {
-                //put thing that should be run when skill is reset
-            },
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "test")
-            // enter name of related image whithout .png in "src/main/resources/assets/better_progression/textures/gui/sprites"
-    ));
-    public static final Skill SPEED = register(new Skill("speed", "speed_desc",
-            (player, world, level) -> {
-                player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.1 + (.01 * level));
-            },
-            (player, world, level) -> {},
-            (player, world, level) -> {
-                player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(.1);
-            },
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_multiplier")
-    ));
+    // ----- Skills -----
+    public static final Skill EXAMPLE = register(Skill
+            .builder("example") //the skills id
+            .descriptionId("example_desc") // Sets a custom translation key for the description
 
-    public static final Skill SPEED_IN_WATER = register(new Skill("speed_in_water", "speed_in_water_desc",
-            (player, world, level) -> {
-                player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY).setBaseValue(0 + (.01 * level));
-            },
-            (player, world, level) -> {},
-            (player, world, level) -> {
-                player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY).setBaseValue(0);
-            },
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_in_water_multiplier")
-    ));
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook"/*Filename without file extension*/))
+            //adds an icon from the folder:
+            //"src/main/resources/assets/better_progression/textures/gui/sprites"
 
-    public static final Skill ATTACK_RANGE = register(new Skill("attack_range", "attack_range_desc",
-            (player, world, level) -> {
-                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(3 + (10 * level));
-            },
-            (player, world, level) -> {},
-            (player, world, level) -> {
-                (player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE)).setBaseValue(3);
-            },
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "sword_range")
-    ));
+            .de("Beispiel Skill", "Ein Skill, der nichts tut") // Adds German name and description
+            .en("Example Skill", "A skill that does nothing") // Adds English name and description
 
-    public static final Skill PLACING_RANGE = register(new Skill("placing_range","placing_range_desc",
-            (player,world, level) ->  {
-                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(3 +(10 * level));
-            },
-            (player, world, level) -> {},
-            (player, world, level) -> {
-                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(3);
-            },
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID,"jumper")
+            .action((context) -> {}) // The main action to execute every tick
+            .when((context) -> true) // Acts as a gatekeeper:
+            // if this returns false, the action is skipped. If omitted, it defaults to 'true' (always execute).
+            .elseAction((context) -> {}) // Executed only if the 'when' condition fails
+
+            .onUnlock((context) -> {}) // Executed once when the skill is unlocked
+            .onReset((context) -> {}) // Executed once when the skill is reset
+
+            .build()); // Finalizes the builder and creates the Skill record
+
+    public static final Skill SPEED = register(Skill
+            .builder("speed")
+            .descriptionId("speed_desc")
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "speed_multiplier"))
+            .en("Speed", "Permanently increases your movement speed.")
+            .de("Geschwindigkeit", "Erhöht deine Bewegungsgeschwindigkeit dauerhaft.")
+            .onUnlock(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.MOVEMENT_SPEED);
+                if (attr != null) attr.setBaseValue(0.1 + (0.01 * ctx.getSkillLevel()));
+            })
+            .onReset(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.MOVEMENT_SPEED);
+                if (attr != null) attr.setBaseValue(0.1);
+            })
+            .build());
+
+    public static final Skill ATTACK_RANGE = register(Skill
+            .builder("attack_range")
+            .descriptionId("attack_range_desc")
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "sword_range"))
+            .en("Attack Range", "Increases your attack and interaction range.")
+            .de("Angriffsreichweite", "Erhöht deine Angriffs- und Interaktionsreichweite.")
+            .onUnlock(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
+                if (attr != null) attr.setBaseValue(3.0 + (0.5 * ctx.getSkillLevel()));
+            })
+            .onReset(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
+                if (attr != null) attr.setBaseValue(3.0);
+            })
+            .build());
+
+    public static final Skill NO_HUNGER_EFFECT = register(Skill
+            .builder("no_hunger_effect")
+            .descriptionId("no_hunger_effect_desc")
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "no_rotten_flesh_effect"))
+            .en("Iron Stomach", "Instantly cures the hunger effect from bad food.")
+            .de("Eiserner Magen", "Heilt den Hungereffekt von verdorbener Nahrung sofort.")
+            .when(ctx -> ctx.getPlayer().hasEffect(MobEffects.HUNGER))
+            .action(ctx -> ctx.getPlayer().removeEffect(MobEffects.HUNGER))
+            .build());
 
 
-    ));
+    // ----- temporary -----
+    // only used for testing (AI generated)
+    public static final Skill MAX_HEALTH = register(Skill
+            .builder("max_health")
+            .descriptionId("max_health_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "hud/heart/full"))
+            .en("Max Health", "Adds extra heart containers permanently.")
+            .de("Maximale Gesundheit", "Fügt dauerhaft zusätzliche Herzen hinzu.")
+            .onUnlock(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.MAX_HEALTH);
+                if (attr != null) {
+                    attr.setBaseValue(20.0 + (2.0 * ctx.getSkillLevel()));
+                    ctx.getPlayer().heal(2.0f);
+                }
+            })
+            .onReset(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.MAX_HEALTH);
+                if (attr != null) attr.setBaseValue(20.0);
+            })
+            .build());
 
-    public static final Skill NO_HUNGER_EFFECT = register(new Skill("no_hunger_effect", "no_hunger_effect_desc",
-            (player, world, level) -> {},
-            (player, world, level) -> {
-                if (player.hasEffect(MobEffects.HUNGER)) player.removeEffect(MobEffects.HUNGER);
-            },
-            (player, world, level) -> {},
-            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "no_rotten_flesh_effect")
-    ));
+    public static final Skill FEATHER_FALLING = register(Skill
+            .builder("feather_falling")
+            .descriptionId("feather_falling_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/slow_falling"))
+            .en("Glider", "Slows your fall automatically when falling from high places.")
+            .de("Gleiter", "Verlangsamt deinen Fall automatisch bei großen Sturzhöhen.")
+            .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 40, 0, false, false, true)))
+            .when(ctx -> ctx.getPlayer().fallDistance > 3.0f)
+            .build());
+
+    public static final Skill GILLS = register(Skill
+            .builder("gills")
+            .descriptionId("gills_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/water_breathing"))
+            .en("Gills", "Refills your oxygen supply right before you drown.")
+            .de("Kiemen", "Füllt deinen Sauerstoff auf, kurz bevor du ertrinkst.")
+            .action(ctx -> ctx.getPlayer().setAirSupply(Math.min(ctx.getPlayer().getMaxAirSupply(), ctx.getPlayer().getAirSupply() + 60)))
+            .when(ctx -> ctx.getPlayer().getAirSupply() <= 20 && ctx.getPlayer().isEyeInFluid(FluidTags.WATER))
+            .build());
+
+    public static final Skill FIRE_IMMUNITY = register(Skill
+            .builder("fire_immunity")
+            .descriptionId("fire_immunity_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/fire_resistance"))
+            .en("Fire Shield", "Grants fire resistance whenever you touch fire or lava.")
+            .de("Feuerschild", "Gewährt Feuerresistenz, sobald du Feuer oder Lava berührst.")
+            .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 60, 0, false, false, true)))
+            .when(ctx -> ctx.getPlayer().isOnFire() || ctx.getPlayer().isInLava())
+            .build());
+
+    public static final Skill STEP_ASSIST = register(Skill
+            .builder("step_assist")
+            .descriptionId("step_assist_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/jump_boost"))
+            .en("Step Assist", "Allows you to step up full blocks without jumping.")
+            .de("Schritthilfe", "Ermöglicht es dir, ganze Blöcke ohne Springen hochzugehen.")
+            .onUnlock(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.STEP_HEIGHT);
+                if (attr != null) attr.setBaseValue(1.0 + (0.5 * (ctx.getSkillLevel() - 1)));
+            })
+            .onReset(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.STEP_HEIGHT);
+                if (attr != null) attr.setBaseValue(0.6);
+            })
+            .build());
+
+    public static final Skill NIGHT_VISION = register(Skill
+            .builder("night_vision")
+            .descriptionId("night_vision_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/night_vision"))
+            .en("Cave Eye", "Grants night vision automatically when you are in dark areas.")
+            .de("Höhlenauge", "Gewährt automatisch Nachtsicht, wenn du dich in dunklen Bereichen aufhältst.")
+            .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 260, 0, false, false, false)))
+            .when(ctx -> ctx.getPlayer().level().getMaxLocalRawBrightness(ctx.getPlayer().blockPosition()) < 4)
+            .build());
+
+    public static final Skill AQUA_SPEED = register(Skill
+            .builder("aqua_speed")
+            .descriptionId("aqua_speed_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/dolphins_grace"))
+            .en("Ocean Glide", "Increases your swim speed significantly while submerged.")
+            .de("Ozeangleiter", "Erhöht deine Schwimmgeschwindigkeit unter Wasser drastisch.")
+            .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 40, ctx.getSkillLevel() - 1, false, false, true)))
+            .when(ctx -> ctx.getPlayer().isEyeInFluid(net.minecraft.tags.FluidTags.WATER))
+            .build());
+
+    public static final Skill KNOCKBACK_RESIST = register(Skill
+            .builder("knockback_resist")
+            .descriptionId("knockback_resist_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/resistance"))
+            .en("Unstoppable", "Reduces the knockback you take from enemy attacks.")
+            .de("Standhaft", "Verringert den Rückstoß, den du durch feindliche Angriffe erleidest.")
+            .onUnlock(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+                if (attr != null) attr.setBaseValue(0.2 * ctx.getSkillLevel());
+            })
+            .onReset(ctx -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+                if (attr != null) attr.setBaseValue(0.0);
+            })
+            .build());
+
+    public static final Skill ALCH_REGEN = register(Skill
+            .builder("alch_regen")
+            .descriptionId("alch_regen_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/regeneration"))
+            .en("Photosynthesis", "Slowly regenerates your health when your food bar is completely full.")
+            .de("Fotosynthese", "Regeneriert langsam deine Gesundheit, wenn deine Hungerleiste komplett voll ist.")
+            .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.REGENERATION, 50, ctx.getSkillLevel() - 1, false, false, true)))
+            .when(ctx -> ctx.getPlayer().getFoodData().getFoodLevel() >= 20)
+            .build());
+
+    public static final Skill MINING_HASTE = register(Skill
+            .builder("mining_haste")
+            .descriptionId("mining_haste_desc")
+            .icon(Identifier.fromNamespaceAndPath("minecraft", "mob_effect/haste"))
+            .en("Haste", "Increases your mining speed permanently while holding a tool.")
+            .de("Eile", "Erhöht deine Abbaugeschwindigkeit dauerhaft, während du ein Werkzeug hältst.")
+            .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.HASTE, 40, ctx.getSkillLevel() - 1, false, false, true)))
+            .when(ctx -> ctx.getPlayer().getMainHandItem().isCorrectToolForDrops(net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()))
+            .build());
+
+
 
 
 
     public static Skill register(Skill skill) {
-        BetterProgression.getLogger().info("registering Skill: " + skill.NAME_ID());
-        SKILLS.put(skill.NAME_ID(), skill);
+        BetterProgression.getLogger().info("registering Skill: {}", skill.id());
+        SKILLS.put(skill.id(), skill);
         return skill;
     }
     public static void initialize() {
         BetterProgression.getLogger().info("initializing Skills");
     }
 }
-

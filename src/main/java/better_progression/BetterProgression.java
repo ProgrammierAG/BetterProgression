@@ -1,10 +1,11 @@
 package better_progression;
 
 import better_progression.items.ModItems;
-import better_progression.skillLogic.Attachments;
-import better_progression.skillLogic.Networking;
+import better_progression.networking.Networking;
+import better_progression.skillLogic.SkillContext;
 import better_progression.skillLogic.SkillLogicRunner;
-import better_progression.skillLogic.SkillTree;
+import better_progression.skillTree.SkillTree;
+import better_progression.skillTree.SkillTrees;
 import better_progression.skills.Skills;
 import net.fabricmc.api.ModInitializer;
 
@@ -25,6 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 
 public class BetterProgression implements ModInitializer {
@@ -43,11 +47,16 @@ public class BetterProgression implements ModInitializer {
 		LOGGER.info("Initializing BetterProgression Main");
 
 		SkillLogicRunner.initialize();
+
 		ModItems.initialize();
+
 		Attachments.initialize();
+
 		Skills.initialize();
-		SkillTree.initialize();
+
 		Networking.registerServerReceiver();
+
+		SkillTrees.initialize();
 
 		//spawns SkillpointBottles as Item in different locations
 		LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
@@ -69,20 +78,55 @@ public class BetterProgression implements ModInitializer {
 			}
         });
 		//Creates a Command that resets the Skills of a given player
-		CommandRegistrationCallback.EVENT.register((dispatcher,
-                                                    commandBuildContext,
-                                                    commandSelection) -> {
+		CommandRegistrationCallback.EVENT.register((dispatcher, commandBuildContext, commandSelection) -> {
 			dispatcher.register(Commands.literal("resetSkills")
+					.requires(source -> true)
+					.then(Commands.argument("target", EntityArgument.player())
+							.executes(context -> {
+								ServerPlayer player = EntityArgument.getPlayer(context, "target");
+
+								List<String> unlockedSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
+
+								if (unlockedSkills != null) {
+									unlockedSkills.parallelStream().forEach(name -> {
+										SkillTree.REGISTRY.values().stream()
+												.map(tree -> tree.getSkillButtons().get(name))
+												.filter(Objects::nonNull)
+												.findFirst()
+												.ifPresent(skill -> {
+
+													skill.reset(new SkillContext(player, 0));
+												});
+									});
+								}
+								player.setAttached(Attachments.UNLOCKED_SKILLS, new ArrayList<>());
+								player.setAttached(Attachments.SKILL_LEVELS, new HashMap<>());
+
+								context.getSource().sendSuccess(
+										() -> Component.literal("Skills reset for Player: " + player.getScoreboardName()),
+										true
+								);
+
+								return 1;
+							})
+					)
+			);
+		});
+
+		//Creates a Command that resets the Skillpoints of a given player
+		CommandRegistrationCallback.EVENT.register((dispatcher,
+													commandBuildContext,
+													commandSelection) -> {
+			dispatcher.register(Commands.literal("resetSkillPoints")
 					.requires(soure -> true)
 					.then(Commands.argument("target", EntityArgument.player())
 							.executes(context -> {
 								ServerPlayer player = EntityArgument.getPlayer(context, "target");
-								player.getAttached(Attachments.UNLOCKED_SKILLS).parallelStream().forEach(
-										Name_ID -> Skills.SKILLS.get(Name_ID).onReset().process(player, player.level(), 0));
-								player.setAttached(Attachments.UNLOCKED_SKILLS, new ArrayList<>());
+
+								player.setAttached(Attachments.SKILLPOINTS, 0);
 
 								context.getSource().sendSuccess(
-										() -> Component.literal("Skills reset for Player: " + player.getScoreboardName()),
+										() -> Component.literal("SkillPoints reset for Player: " + player.getScoreboardName()),
 										true
 								);
 

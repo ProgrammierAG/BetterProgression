@@ -6,8 +6,7 @@
 		"InventoryScreenMixin"
 	],
 	"client": [
-		"ExampleClientMixin",
-		"InGameHudMixin"
+		"GuiMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

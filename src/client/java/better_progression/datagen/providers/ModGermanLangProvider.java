@@ -19,5 +19,9 @@ public class ModGermanLangProvider extends FabricLanguageProvider {
     @Override
     public void generateTranslations(HolderLookup.Provider holderLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add(SKILLPOINT_BOTTLE, SkillpointBottle.GERMAN_NAME);
+
+        translationBuilder.add("tooltip.betterprogression.cost", "Kosten: %d Punkte");
+
+        ModSkillTranslationHandler.generateSkillTranslations(translationBuilder, LANGUAGE_CODE);
     }
 }
