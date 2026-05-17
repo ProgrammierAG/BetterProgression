@@ -3,8 +3,9 @@ package better_progression.networking;
 import better_progression.BetterProgression;
 import better_progression.Attachments;
 import better_progression.skillLogic.SkillContext;
-import better_progression.skillTree.SkillTree;
-import better_progression.skills.Skill;
+import better_progression.skillTreeV2.SkillTree;
+import better_progression.skillTreeV2.nodeTypes.ChoiceNode;
+import better_progression.skillTreeV2.nodeTypes.Node;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
@@ -13,8 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
 
 public class Networking {
-
-    public static void  registerServerReceiver() {
+    public static void registerServerReceiver() {
         BetterProgression.getLogger().info("registering Server receiver");
         PayloadTypeRegistry.playC2S().register(SkillUnlockPayload.TYPE, SkillUnlockPayload.STREAM_CODEC);
 
@@ -24,67 +24,58 @@ public class Networking {
             context.server().execute(() -> {
                 BetterProgression.getLogger().info("received Payload for: {}", payload.NAME_ID());
 
-                Optional<SkillTree> targetTree = SkillTree.REGISTRY.values().stream()
-                        .filter(tree -> tree.getSkillButtons().containsKey(payload.NAME_ID()))
+                // Sucht das Node-Objekt in allen registrierten Bäumen
+                Optional<Node> targetNode = SkillTree.REGISTRY.values().stream()
+                        .map(tree -> tree.getNodes().get(payload.NAME_ID()))
+                        .filter(Objects::nonNull)
                         .findFirst();
 
-                if (targetTree.isEmpty()) {
-                    BetterProgression.getLogger().warn("Player {} tried to unlock a node that does not exist in any registered tree: {}",
+                if (targetNode.isEmpty()) {
+                    BetterProgression.getLogger().warn("Player {} tried to unlock a non-existent node: {}",
                             player.getName().getString(), payload.NAME_ID());
                     return;
                 }
 
-                if (canUnlock(player, payload.NAME_ID(), targetTree.get())) {
-                    unlockSkillForPlayer(player, payload.NAME_ID(), targetTree.get());
+                // Holt den zugehörigen Baum für Kontext-Abfragen
+                SkillTree tree = SkillTree.REGISTRY.values().stream()
+                        .filter(t -> t.getNodes().containsKey(payload.NAME_ID()))
+                        .findFirst().orElse(null);
+
+                if (tree != null && canUnlock(player, targetNode.get(), tree)) {
+                    unlockSkillForPlayer(player, targetNode.get(), tree);
                 }
             });
         });
     }
 
-    private static boolean canUnlock(ServerPlayer player, String nameId, SkillTree tree) {
+    private static boolean canUnlock(ServerPlayer player, Node node, SkillTree tree) {
         Integer skillPoints = player.getAttached(Attachments.SKILLPOINTS);
         int currentPoints = (skillPoints != null) ? skillPoints : 0;
-        if (currentPoints < tree.getCost().getOrDefault(nameId, 0)) {
+        if (currentPoints < node.getCost()) {
             return false;
         }
 
         List<String> unlockedSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
         List<String> activeUnlocked = (unlockedSkills != null) ? unlockedSkills : List.of();
 
-        if (tree.isChoiceNode(nameId)) {
-            String partnerId = tree.getChoicePartner(nameId);
-            if (activeUnlocked.contains(partnerId)) {
-                player.displayClientMessage(Component.translatable("message.betterprogression.blocked"), true);
-                return false;
-            }
-        }
-
-        if (isBlockedByChoice(nameId, tree, activeUnlocked)) {
-            player.displayClientMessage(Component.translatable("message.betterprogression.blocked"), true);
-            return false;
-        }
-
-        List<String> parents = tree.getParents(nameId);
+        List<Node> parents = node.getParents();
 
         if (parents != null && !parents.isEmpty()) {
-            boolean hasUnlockedParent = parents.stream().anyMatch(activeUnlocked::contains);
+            boolean hasUnlockedParent = parents.stream().anyMatch(p -> activeUnlocked.contains(p.getId()));
             if (!hasUnlockedParent) {
                 player.displayClientMessage(Component.translatable("message.betterprogression.requires_parent"), true);
                 return false;
             }
         } else {
-            Optional<String> globalStartNode = SkillTree.REGISTRY.values().stream()
+            Optional<Node> globalStartNode = SkillTree.REGISTRY.values().stream()
                     .flatMap(t -> t.getRootNodes().stream())
                     .findFirst();
 
             if (globalStartNode.isPresent()) {
-                String firstNodeId = globalStartNode.get();
-
-                if (!nameId.equals(firstNodeId)) {
-                    if (!activeUnlocked.contains(firstNodeId)) {
-                        player.displayClientMessage(Component.translatable("message.betterprogression.requires_parent"), true);
-                        return false;
-                    }
+                String firstNodeId = globalStartNode.get().getId();
+                if (!node.getId().equals(firstNodeId) && !activeUnlocked.contains(firstNodeId)) {
+                    player.displayClientMessage(Component.translatable("message.betterprogression.requires_parent"), true);
+                    return false;
                 }
             }
         }
@@ -92,27 +83,14 @@ public class Networking {
         return true;
     }
 
-    private static boolean isBlockedByChoice(String id, SkillTree tree, List<String> activeUnlocked) {
-        if (activeUnlocked.contains(id)) return false;
-
-        if (tree.isChoiceNode(id) && activeUnlocked.contains(tree.getChoicePartner(id))) return true;
-
-        List<String> parents = tree.getParents(id);
-
-        if (parents == null || parents.isEmpty()) return false;
-
-        return parents.stream().allMatch(parent -> isBlockedByChoice(parent, tree, activeUnlocked));
-    }
-
-    private static void unlockSkillForPlayer(ServerPlayer player, String nameId, SkillTree tree) {
+    private static void unlockSkillForPlayer(ServerPlayer player, Node node, SkillTree tree) {
         List<String> currentSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
         List<String> newList = (currentSkills == null) ? new ArrayList<>() : new ArrayList<>(currentSkills);
 
         Map<String, Integer> currentSkillLevels = player.getAttached(Attachments.SKILL_LEVELS);
         Map<String, Integer> newMap = (currentSkillLevels == null) ? new HashMap<>() : new HashMap<>(currentSkillLevels);
 
-        Skill skill = tree.getSkillButtons().get(nameId);
-        String skillName = skill.id();
+        String skillName = node.getSkill().id();
 
         if (!newMap.containsKey(skillName)) {
             newMap.put(skillName, 1);
@@ -122,18 +100,33 @@ public class Networking {
 
         player.setAttached(Attachments.SKILL_LEVELS, newMap);
 
-        if (!newList.contains(nameId)) {
-            newList.add(nameId);
-
+        if (!newList.contains(node.getId())) {
+            newList.add(node.getId());
             player.setAttached(Attachments.UNLOCKED_SKILLS, newList);
 
             int currentPoints = player.getAttachedOrElse(Attachments.SKILLPOINTS, 0);
-            player.setAttached(Attachments.SKILLPOINTS, currentPoints - tree.getCost().get(nameId));
+            player.setAttached(Attachments.SKILLPOINTS, currentPoints - node.getCost());
 
-            skill.unlock(new SkillContext(player, newMap.get(skillName)));
 
-            BetterProgression.getLogger().info("Skill {} unlocked in tree {}", nameId, tree.getTreeId());
-            player.displayClientMessage(Component.translatable("message.betterprogression.unlocked_success", nameId), true);
+            node.getSkill().unlock(new SkillContext(player, newMap.get(skillName)));
+
+            BetterProgression.getLogger().info("Skill {} unlocked in tree {}", node.getId(), tree.getTreeId());
+            player.displayClientMessage(Component.translatable("message.betterprogression.unlocked_success"), true);
         }
+    }
+
+    private static boolean isBlockedByChoice(Node node, List<String> activeUnlocked) {
+        if (activeUnlocked.contains(node.getId())) return false;
+
+        if (node instanceof ChoiceNode choiceNode && choiceNode.getPartner() != null) {
+            if (activeUnlocked.contains(choiceNode.getPartner().getId())) {
+                return true;
+            }
+        }
+
+        List<Node> parents = node.getParents();
+        if (parents == null || parents.isEmpty()) return false;
+
+        return parents.stream().allMatch(parent -> isBlockedByChoice(parent, activeUnlocked));
     }
 }

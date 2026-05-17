@@ -1,42 +1,35 @@
 package better_progression.UIs;
 
 import better_progression.Attachments;
-import better_progression.BetterProgression;
 import better_progression.networking.SkillUnlockPayload;
-import better_progression.skillTree.SkillTree;
-import better_progression.skills.Skill;
-import better_progression.skills.Skills;
+import better_progression.rendering.SkillNodeRenderer;
+import better_progression.skillTreeV2.SkillTree;
+import better_progression.skillTreeV2.nodeTypes.Node;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.phys.Vec2;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class SkillTreeUI extends Screen {
     private int windowX = 0;
     private int windowY = 0;
-
     private boolean isDragging = false;
     private double dragX = 0;
     private double dragY = 0;
 
-    private final List<ImageButton> buttons = new ArrayList<>();
-    private final Map<ImageButton, Vec2> positions = new HashMap<>();
-    private final Map<ImageButton, String> IDs = new HashMap<>();
+    private float zoom = 1.0f;
+    private final float minZoom = 0.5f;
+    private final float maxZoom = 2.0f;
 
-    private final Map<ImageButton, SkillTree> buttonTrees = new HashMap<>();
+    private final List<Node> allGuiNodes = new ArrayList<>();
+    private final Map<Node, ImageButton> nodeButtons = new HashMap<>();
 
+    private Node globalRootNode;
     private final int spacing = 40;
 
     public SkillTreeUI() {
@@ -45,32 +38,31 @@ public class SkillTreeUI extends Screen {
 
     @Override
     protected void init() {
-        buttons.clear();
-        positions.clear();
-        IDs.clear();
-        buttonTrees.clear();
+        allGuiNodes.clear();
+        nodeButtons.clear();
+        this.clearWidgets();
 
-        this.genGlobalRootButton(0, 0);
+        this.globalRootNode = new Node("GLOBAL_ROOT", null, 0);
+        ImageButton rootBtn = SkillNodeRenderer.createButton(this.globalRootNode, 0, 0, this::onNodeClicked);
+        this.addRenderableWidget(rootBtn);
+        nodeButtons.put(this.globalRootNode, rootBtn);
+        allGuiNodes.add(this.globalRootNode);
 
-        float[] treeOffsetShift = { 0.0f };
-
+        final float[] treeOffsetShift = { 0.0f };
         SkillTree.REGISTRY.values().forEach(tree -> {
             float currentTreeOffset = treeOffsetShift[0];
 
-            tree.getSkillButtons().keySet().forEach(id -> {
-                int baseX = (int) (spacing * (tree.getXLayer().get(id) + currentTreeOffset));
-                int baseY = spacing * (tree.getYLayer().get(id) + 1);
+            tree.getNodes().values().forEach(node -> {
+                int renderX = (int) (spacing * (node.getXLayer() + currentTreeOffset));
+                int renderY = spacing * (node.getYLayer() + 1);
 
-                if (tree.isChoiceNode(id)) {
-                    String partner = tree.getChoicePartner(id);
-                    int offset = (id.compareTo(partner) < 0) ? -12 : 12;
-                    this.genSkillButton(baseX + offset, baseY, 20, 20, id, tree);
-                } else {
-                    this.genSkillButton(baseX, baseY, 20, 20, id, tree);
-                }
+                ImageButton btn = SkillNodeRenderer.createButton(node, renderX, renderY, this::onNodeClicked);
+                this.addRenderableWidget(btn);
+                nodeButtons.put(node, btn);
+                allGuiNodes.add(node);
             });
 
-            double maxTreeWidth = tree.getXLayer().values().stream().mapToDouble(Math::abs).max().orElse(1.0);
+            double maxTreeWidth = tree.getNodes().values().stream().mapToDouble(n -> Math.abs(n.getXLayer())).max().orElse(1.0);
             treeOffsetShift[0] += (float) ((maxTreeWidth * 2) + 2.0f);
         });
 
@@ -82,225 +74,128 @@ public class SkillTreeUI extends Screen {
         guiGraphics.fillGradient(0, 0, this.width, this.height, 0xA0101010, 0xB0101010);
 
         assert Minecraft.getInstance().player != null;
-        List<String> unlocked_skills = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
-        List<String> activeUnlocked = unlocked_skills != null ? unlocked_skills : List.of();
+        List<String> activeUnlocked = Minecraft.getInstance().player.getAttachedOrElse(Attachments.UNLOCKED_SKILLS, List.of());
 
-        // positions the buttons
-        buttons.forEach(button -> button.setPosition((int) positions.get(button).x + windowX, (int) positions.get(button).y + windowY));
+        allGuiNodes.forEach(node -> {
+            ImageButton btn = nodeButtons.get(node);
+            if (btn != null) {
+                int actualX = (int) (this.width / 2.0f + (node.getXPos() + windowX) * zoom);
+                int actualY = (int) (this.height / 2.0f + (node.getYPos() + windowY) * zoom);
 
-        // connects the buttons
-        buttons.forEach(button -> {
-            String id = IDs.get(button);
-            SkillTree tree = buttonTrees.get(button);
-
-            if (id.equals("GLOBAL_ROOT")) return;
-            if (tree != null && tree.isChoiceNode(id) && id.compareTo(tree.getChoicePartner(id)) >= 0) return;
-
-            int calcX = (int) (positions.get(button).x + windowX);
-            int calcY = (int) (positions.get(button).y + windowY);
-            if (tree != null && tree.isChoiceNode(id)) calcX += 12;
-
-            final int targetX = calcX + 10;
-            final int targetY = calcY + 10;
-
-            if (tree != null && tree.getRootNodes().contains(id)) {
-                buttons.stream().filter(b -> IDs.get(b).equals("GLOBAL_ROOT")).findFirst().ifPresent(rootBtn -> {
-                    int startX = (int) (positions.get(rootBtn).x + windowX + 10);
-                    int startY = (int) (positions.get(rootBtn).y + windowY + 10);
-
-                    int lineColor = activeUnlocked.contains(id) ? 0xFF55FF55 : 0xFF555555;
-                    drawLine(guiGraphics, targetX, targetY, startX, startY, 2, lineColor);
-                });
-            }
-
-            if (tree != null) {
-                Optional.ofNullable(tree.getParents(id)).ifPresent(parents -> parents.forEach(parent -> {
-                    buttons.stream().filter(b -> IDs.get(b).equals(parent) && buttonTrees.get(b) == tree).findFirst().ifPresent(parentButton -> {
-                        int parX = (int) (positions.get(parentButton).x + windowX);
-                        int parY = (int) (positions.get(parentButton).y + windowY);
-
-                        int startX = parX + 10;
-                        int startY = parY + 10;
-
-                        int lineColor = isBlockedByChoice(id, tree, activeUnlocked) || isBlockedByChoice(parent, tree, activeUnlocked) ? 0xFF880000
-                                : activeUnlocked.contains(parent) && activeUnlocked.contains(id) ? 0xFF55FF55 : 0xFF555555;
-
-                        drawLine(guiGraphics, targetX, targetY, startX, startY, 2, lineColor);
-                    });
-                }));
+                btn.setPosition(actualX, actualY);
+                btn.setWidth((int) (20 * zoom));
+                btn.setHeight((int) (20 * zoom));
             }
         });
 
-        // draws backgrounds for choices
-        buttons.stream().filter(b -> buttonTrees.get(b) != null)
-                .filter(b -> buttonTrees.get(b).isChoiceNode(IDs.get(b)))
-                .filter(b -> IDs.get(b).compareTo(buttonTrees.get(b).getChoicePartner(IDs.get(b))) < 0)
-                .forEach(button -> {
-                    String id = IDs.get(button);
-                    SkillTree tree = buttonTrees.get(button);
-                    ImageButton btnB = buttons.stream().filter(b -> IDs.get(b).equals(tree.getChoicePartner(id)) && buttonTrees.get(b) == tree).findFirst().orElse(null);
-                    if (btnB != null) {
-                        int minX = Math.min(button.getX(), btnB.getX()) - 2;
-                        int maxX = Math.max(button.getX(), btnB.getX()) + button.getWidth() + 2;
-                        int minY = Math.min(button.getY(), btnB.getY()) - 2;
-                        int maxY = Math.max(button.getY(), btnB.getY()) + button.getHeight() + 2;
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(this.width / 2.0f, this.height / 2.0f);
+        guiGraphics.pose().scale(zoom, zoom);
 
-                        int frameColor = activeUnlocked.contains(id) || activeUnlocked.contains(tree.getChoicePartner(id)) ? 0xFF55FF55
-                                : isBlockedByChoice(id, tree, activeUnlocked) ? 0xFF880000 : 0xFFFFAA00;
+        allGuiNodes.forEach(node -> SkillNodeRenderer.renderLines(node, guiGraphics, windowX, windowY, activeUnlocked, this));
 
-                        guiGraphics.fill(minX, minY, maxX, minY + 2, frameColor);
-                        guiGraphics.fill(minX, maxY - 2, maxX, maxY, frameColor);
-                        guiGraphics.fill(minX, minY + 2, minX + 2, maxY - 2, frameColor);
-                        guiGraphics.fill(maxX - 2, minY + 2, maxX, maxY - 2, frameColor);
-                    }
-                });
-
-        // draws backgrounds
-        buttons.forEach(button -> {
-            int x = (int) positions.get(button).x + windowX;
-            int y = (int) positions.get(button).y + windowY;
-            String id = IDs.get(button);
-            SkillTree tree = buttonTrees.get(button);
-
-            if (id.equals("GLOBAL_ROOT")) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_OBTAINED, x - 2, y - 2, 24, 24);
-                return;
-            }
-
-            boolean isUnlocked = activeUnlocked.contains(id);
-            boolean isChoiceBlocked = isBlockedByChoice(id, tree, activeUnlocked);
-
-            List<String> parents = tree.getParents(id);
-            boolean hasRequiredParent = (parents == null || parents.isEmpty()) || parents.stream().anyMatch(activeUnlocked::contains);
-            int currentPoints = Minecraft.getInstance().player.getAttachedOrElse(Attachments.SKILLPOINTS, 0);
-            boolean hasEnoughPoints = currentPoints >= tree.getCost().getOrDefault(id, 0);
-
-            if (isUnlocked) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_OBTAINED, x - 2, y - 2, 24, 24);
-            } else if (isChoiceBlocked) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_BLOCKED, x - 2, y - 2, 24, 24);
-            } else if (!hasRequiredParent || !hasEnoughPoints) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_UNOBTAINABLE, x - 2, y - 2, 24, 24);
-            } else {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, Skills.BUTTON_BACKGROUND_UNOBTAINED, x - 2, y - 2, 24, 24);
-            }
+        allGuiNodes.forEach(node -> {
+            ImageButton btn = nodeButtons.get(node);
+            SkillNodeRenderer.renderBackground(node, btn, guiGraphics, windowX, windowY, activeUnlocked);
         });
+
+        guiGraphics.pose().popMatrix();
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
-    private boolean isBlockedByChoice(String id, SkillTree tree, List<String> activeUnlocked) {
-        if (activeUnlocked.contains(id)) return false;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        float oldZoom = zoom;
 
-        if (tree.isChoiceNode(id) && activeUnlocked.contains(tree.getChoicePartner(id))) {
+        if (scrollY > 0) {
+            zoom = Math.min(maxZoom, zoom + 0.1f);
+        } else if (scrollY < 0) {
+            zoom = Math.max(minZoom, zoom - 0.1f);
+        }
+
+        if (zoom != oldZoom) {
+            double mouseInTreeX = (mouseX - this.width / 2.0) / oldZoom - windowX;
+            double mouseInTreeY = (mouseY - this.height / 2.0) / oldZoom - windowY;
+
+            this.windowX = (int) ((mouseX - this.width / 2.0) / zoom - mouseInTreeX);
+            this.windowY = (int) ((mouseY / zoom) - mouseInTreeY);
+        }
+
+        return true;
+    }
+
+    private void onNodeClicked(Node node) {
+        if (node.getSkill() == null) return;
+        ClientPlayNetworking.send(new SkillUnlockPayload(node.getId()));
+    }
+
+    public Optional<Node> getGlobalRootNode() {
+        return Optional.ofNullable(this.globalRootNode);
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean bl) {
+        if (event.button() == 0) {
+            this.isDragging = true;
+
+            this.dragX = (event.x() / zoom) - windowX;
+            this.dragY = (event.y() / zoom) - windowY;
+
+            if (super.mouseClicked(event, bl)) return true;
+        }
+        return super.mouseClicked(event, bl);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent event, double d, double e) {
+        if (this.isDragging && event.button() == 0) {
+            int newWindowX = (int) ((event.x() / zoom) - this.dragX);
+            int newWindowY = (int) ((event.y() / zoom) - this.dragY);
+
+            int minTreeX = allGuiNodes.stream().mapToInt(Node::getXPos).min().orElse(-100) - 100;
+            int maxTreeX = allGuiNodes.stream().mapToInt(Node::getXPos).max().orElse(100) + 100;
+            int minTreeY = allGuiNodes.stream().mapToInt(Node::getYPos).min().orElse(-100) - 100;
+            int maxTreeY = allGuiNodes.stream().mapToInt(Node::getYPos).max().orElse(100) + 100;
+
+            int limitXLeft = (int) (-(maxTreeX) - (this.width / (2.0f * zoom)));
+            int limitXRight = (int) (-(minTreeX) + (this.width / (2.0f * zoom)));
+            int limitYTop = (int) (-(maxTreeY) - (this.height / (2.0f * zoom)));
+            int limitYBottom = (int) (-(minTreeY) + (this.height / (2.0f * zoom)));
+
+            this.windowX = Math.max(limitXLeft, Math.min(limitXRight, newWindowX));
+            this.windowY = Math.max(limitYTop, Math.min(limitYBottom, newWindowY));
+
             return true;
         }
+        return super.mouseDragged(event, d, e);
+    }
 
-        List<String> parents = tree.getParents(id);
-        if (parents == null || parents.isEmpty()) {
-            return false;
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0) {
+            this.isDragging = false;
         }
-
-        return parents.stream().allMatch(parent -> isBlockedByChoice(parent, tree, activeUnlocked));
+        return super.mouseReleased(event);
     }
 
-    public void genGlobalRootButton(int x, int y) {
-        WidgetSprites icon = new WidgetSprites(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook"));
-        ImageButton button = new ImageButton(x, y, 20, 20, icon, b -> {});
-        button.setTooltip(Tooltip.create(Component.translatable("tooltip.betterprogression.global_root").withStyle(net.minecraft.ChatFormatting.GOLD)));
-        this.addRenderableWidget(button);
-        this.buttons.add(button);
-        this.positions.put(button, new Vec2(x, y));
-        this.IDs.put(button, "GLOBAL_ROOT");
-    }
+    public void drawLine(GuiGraphics guiGraphics, float x1, float y1, float x2, float y2, int color) {
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        float lineWidth = 2.0f;
 
-    public void genSkillButton(int x, int y, int width, int height, String id, SkillTree tree) {
-        Skill skill = tree.getSkillButtons().get(id);
-        ImageButton button = new ImageButton(x, y, width, height,
-                new WidgetSprites(skill.iconId()), b -> {
-            List<String> activeUnlocked = Minecraft.getInstance().player.getAttached(Attachments.UNLOCKED_SKILLS);
-            List<String> unlockedList = (activeUnlocked != null) ? activeUnlocked : List.of();
-
-            if (unlockedList.contains(id) || isBlockedByChoice(id, tree, unlockedList)) return;
-
-            List<String> parents = tree.getParents(id);
-            if (parents != null && !parents.isEmpty()) {
-                boolean hasUnlockedParent = parents.stream().anyMatch(unlockedList::contains);
-                if (!hasUnlockedParent) {
-                    return;
-                }
-            }
-
-            if (Minecraft.getInstance().player.getAttachedOrElse(Attachments.SKILLPOINTS, 0) < tree.getCost().get(id)) return;
-
-            ClientPlayNetworking.send(new SkillUnlockPayload(id));
-        });
-
-        button.setTooltip(Tooltip.create(Component.translatable(skill.id())
-                .withStyle(ChatFormatting.GOLD)
-
-                .append(Component.literal("\n")).append(Component.translatable(
-                        skill.desc_id())
-                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC))
-
-                .append(Component.literal("\n\n")).append(Component.translatable(
-                        "tooltip.betterprogression.cost", tree.getCost().getOrDefault(id, 0))
-                        .withStyle(ChatFormatting.DARK_GREEN))));
-
-        this.addRenderableWidget(button);
-        this.buttons.add(button);
-        this.positions.put(button, new Vec2(x, y));
-        this.IDs.put(button, id);
-        this.buttonTrees.put(button, tree);
-    }
-
-    public void drawLine(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int width, int color) {
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(x1, y1);
-        float angle = (float) Math.atan2(y2 - y1, x2 - x1);
+
+        float angle = (float) Math.atan2(dy, dx);
         guiGraphics.pose().rotateAbout(angle, 0, 0);
-        float length = (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-        guiGraphics.fill(0, -width/2, (int)length, width/2, color);
+
+        float length = (float) Math.sqrt(dx * dx + dy * dy);
+        guiGraphics.fill(0, (int)(-lineWidth / 2.0f), (int)length, (int)(lineWidth / 2.0f), color);
+
         guiGraphics.pose().popMatrix();
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
-        if (mouseButtonEvent.button() == 0) {
-            this.isDragging = true;
-            this.dragX = mouseButtonEvent.x() - windowX;
-            this.dragY = mouseButtonEvent.y() - windowY;
-            if (super.mouseClicked(mouseButtonEvent, bl)) {
-                return true;
-            }
-        }
-        return super.mouseClicked(mouseButtonEvent, bl);
-    }
-
-    @Override
-    public boolean mouseDragged(@NotNull MouseButtonEvent mouseButtonEvent, double d, double e) {
-        if (this.isDragging && mouseButtonEvent.button() == 0) {
-            this.windowX = (int) (mouseButtonEvent.x() - this.dragX);
-            this.windowY = (int) (mouseButtonEvent.y() - this.dragY);
-
-
-
-            return true;
-        }
-
-        return super.mouseDragged(mouseButtonEvent, d, e);
-    }
-
-    @Override
-    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
-        if (mouseButtonEvent.button() == 0) {
-            this.isDragging = false;
-        }
-        return super.mouseReleased(mouseButtonEvent);
-    }
-
-    @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
+    public boolean isPauseScreen() { return false; }
 }

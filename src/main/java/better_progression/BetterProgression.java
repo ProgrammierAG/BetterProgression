@@ -4,8 +4,8 @@ import better_progression.items.ModItems;
 import better_progression.networking.Networking;
 import better_progression.skillLogic.SkillContext;
 import better_progression.skillLogic.SkillLogicRunner;
-import better_progression.skillTree.SkillTree;
-import better_progression.skillTree.SkillTrees;
+import better_progression.skillTreeV2.SkillTree;
+import better_progression.skillTreeV2.SkillTrees;
 import better_progression.skills.Skills;
 import net.fabricmc.api.ModInitializer;
 
@@ -88,17 +88,19 @@ public class BetterProgression implements ModInitializer {
 								List<String> unlockedSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
 
 								if (unlockedSkills != null) {
-									unlockedSkills.parallelStream().forEach(name -> {
+									unlockedSkills.parallelStream().forEach(nameId -> {
 										SkillTree.REGISTRY.values().stream()
-												.map(tree -> tree.getSkillButtons().get(name))
+												.map(tree -> tree.getNodes().get(nameId))
 												.filter(Objects::nonNull)
 												.findFirst()
-												.ifPresent(skill -> {
-
-													skill.reset(new SkillContext(player, 0));
+												.ifPresent(node -> {
+													if (node.getSkill() != null) {
+														node.getSkill().reset(new SkillContext(player, 0));
+													}
 												});
 									});
 								}
+
 								player.setAttached(Attachments.UNLOCKED_SKILLS, new ArrayList<>());
 								player.setAttached(Attachments.SKILL_LEVELS, new HashMap<>());
 
