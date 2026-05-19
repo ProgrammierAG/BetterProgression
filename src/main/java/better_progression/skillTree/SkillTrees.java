@@ -1,4 +1,4 @@
-package better_progression.skillTreeV2;
+package better_progression.skillTree;
 
 import better_progression.BetterProgression;
 import better_progression.skills.Skills;
@@ -17,7 +17,6 @@ public class SkillTrees {
                 .node("prep_magic", Skills.NO_HUNGER_EFFECT, 2)
                 .node("prep_melee", Skills.ATTACK_RANGE, 2)
 
-                // Ebene 3: Normale parallele Zweige (Kein Choice-Loch mehr!)
                 .node("class_mage", Skills.FIRE_IMMUNITY, 3)
                 .node("class_knight", Skills.KNOCKBACK_RESIST, 3)
 
@@ -35,8 +34,6 @@ public class SkillTrees {
                 //eben 7
 
                 .node("vision", Skills.NIGHT_VISION, 7)
-
-                //ebene 8
                 .node("aqua", Skills.AQUA_SPEED, 8)
                 .node("regen", Skills.ALCH_REGEN, 8)
                 .node("haste", Skills.MINING_HASTE, 8)
@@ -55,11 +52,11 @@ public class SkillTrees {
                 .connect("mage_gills", "feather")
 
                 .connect("feather", "step")
-                .connect("step", "vision")
 
-                .connect("vision", "aqua")
-                .connect("vision", "regen")
-                .connect("vision", "haste")
+                .connect("step", "vision")
+                .connect("step", "aqua")
+                .connect("step", "regen")
+                .connect("step", "haste")
                 .build();
     }
 }

@@ -1,12 +1,12 @@
 package better_progression.datagen.providers;
 
 import better_progression.BetterProgression;
-import better_progression.skillTreeV2.nodeTypes.Node;
+import better_progression.skillTree.nodeTypes.Node;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 
 import java.util.Objects;
 
-import static better_progression.skillTreeV2.SkillTree.REGISTRY;
+import static better_progression.skillTree.SkillTree.REGISTRY;
 
 public class ModSkillTranslationHandler {
     public static void generateSkillTranslations(FabricLanguageProvider.TranslationBuilder translationBuilder, String langCode) {

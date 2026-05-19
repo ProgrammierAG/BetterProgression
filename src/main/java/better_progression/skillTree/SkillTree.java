@@ -1,8 +1,7 @@
-package better_progression.skillTreeV2;
+package better_progression.skillTree;
 
 import better_progression.BetterProgression;
-import better_progression.skillTreeV2.nodeTypes.ChoiceNode;
-import better_progression.skillTreeV2.nodeTypes.Node;
+import better_progression.skillTree.nodeTypes.Node;
 import better_progression.skills.Skill;
 import net.minecraft.resources.Identifier;
 
@@ -41,7 +40,7 @@ public class SkillTree {
             return;
         }
 
-        parent.addPlayerRelation(child);
+        parent.addChild(child);
     }
 
     public boolean isReachable(Node current, Node target) {

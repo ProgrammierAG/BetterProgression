@@ -2,8 +2,8 @@ package better_progression.skillLogic;
 
 import better_progression.Attachments;
 import better_progression.BetterProgression;
-import better_progression.skillTreeV2.nodeTypes.Node;
-import better_progression.skillTreeV2.SkillTree;
+import better_progression.skillTree.nodeTypes.Node;
+import better_progression.skillTree.SkillTree;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.level.ServerPlayer;

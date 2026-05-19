@@ -1,14 +1,10 @@
-package better_progression.skillTreeV2;
+package better_progression.skillTree;
 
-import better_progression.BetterProgression;
-import better_progression.skillTreeV2.nodeTypes.ChoiceNode;
-import better_progression.skillTreeV2.nodeTypes.Node;
+import better_progression.skillTree.nodeTypes.Node;
 import better_progression.skills.Skill;
 import net.minecraft.resources.Identifier;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SkillTreeBuilder {

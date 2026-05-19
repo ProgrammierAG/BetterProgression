@@ -2,16 +2,20 @@ package better_progression.UIs;
 
 import better_progression.Attachments;
 import better_progression.networking.SkillUnlockPayload;
+import better_progression.rendering.RenderCommand;
 import better_progression.rendering.SkillNodeRenderer;
-import better_progression.skillTreeV2.SkillTree;
-import better_progression.skillTreeV2.nodeTypes.Node;
+import better_progression.skillTree.SkillTree;
+import better_progression.skillTree.nodeTypes.Node;
+import better_progression.skills.Skills;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import java.util.*;
 
@@ -32,6 +36,8 @@ public class SkillTreeUI extends Screen {
     private Node globalRootNode;
     private final int spacing = 40;
 
+    private final List<RenderCommand> cachedRenderQueue = new ArrayList<>();
+
     public SkillTreeUI() {
         super(Component.literal("SkillTreeUI"));
     }
@@ -40,6 +46,7 @@ public class SkillTreeUI extends Screen {
     protected void init() {
         allGuiNodes.clear();
         nodeButtons.clear();
+        cachedRenderQueue.clear();
         this.clearWidgets();
 
         this.globalRootNode = new Node("GLOBAL_ROOT", null, 0);
@@ -66,6 +73,13 @@ public class SkillTreeUI extends Screen {
             treeOffsetShift[0] += (float) ((maxTreeWidth * 2) + 2.0f);
         });
 
+        assert Minecraft.getInstance().player != null;
+        List<String> dummyList = List.of();
+
+        allGuiNodes.forEach(node -> node.generateRenderCommands(
+                cachedRenderQueue, 0, 0, dummyList, 0, globalRootNode
+        ));
+
         super.init();
     }
 
@@ -75,13 +89,13 @@ public class SkillTreeUI extends Screen {
 
         assert Minecraft.getInstance().player != null;
         List<String> activeUnlocked = Minecraft.getInstance().player.getAttachedOrElse(Attachments.UNLOCKED_SKILLS, List.of());
+        int currentPoints = Minecraft.getInstance().player.getAttachedOrElse(Attachments.SKILLPOINTS, 0);
 
         allGuiNodes.forEach(node -> {
             ImageButton btn = nodeButtons.get(node);
             if (btn != null) {
                 int actualX = (int) (this.width / 2.0f + (node.getXPos() + windowX) * zoom);
                 int actualY = (int) (this.height / 2.0f + (node.getYPos() + windowY) * zoom);
-
                 btn.setPosition(actualX, actualY);
                 btn.setWidth((int) (20 * zoom));
                 btn.setHeight((int) (20 * zoom));
@@ -92,15 +106,49 @@ public class SkillTreeUI extends Screen {
         guiGraphics.pose().translate(this.width / 2.0f, this.height / 2.0f);
         guiGraphics.pose().scale(zoom, zoom);
 
-        allGuiNodes.forEach(node -> SkillNodeRenderer.renderLines(node, guiGraphics, windowX, windowY, activeUnlocked, this));
+        for (RenderCommand command : cachedRenderQueue) {
+            if (command instanceof RenderCommand.Line line) {
+                Node targetNode = line.getTargetNode();
 
-        allGuiNodes.forEach(node -> {
-            ImageButton btn = nodeButtons.get(node);
-            SkillNodeRenderer.renderBackground(node, btn, guiGraphics, windowX, windowY, activeUnlocked);
-        });
+                int endX = targetNode.getIncomingAnchorX() + windowX;
+                int endY = targetNode.getIncomingAnchorY() + windowY;
+
+                Node parentNode = allGuiNodes.stream()
+                        .filter(n -> (n.getXPos() + 10) == line.getStartX() && (n.getYPos() + 10) == line.getStartY())
+                        .findFirst().orElse(null);
+
+                int lineColor = 0xFF555555;
+                if (parentNode != null) {
+                    if (activeUnlocked.contains(parentNode.getId()) && activeUnlocked.contains(targetNode.getId())) {
+                        lineColor = 0xFF55FF55;
+                    }
+                } else if (activeUnlocked.contains(targetNode.getId())) {
+                    lineColor = 0xFF55FF55;
+                }
+
+                this.drawLine(guiGraphics, line.getStartX() + windowX, line.getStartY() + windowY, endX, endY, lineColor);
+            }
+        }
+
+        for (RenderCommand command : cachedRenderQueue) {
+            if (command instanceof RenderCommand.Background bg) {
+                Node node = bg.getNode();
+
+                boolean isUnlocked = activeUnlocked.contains(node.getId()) || (node.getSkill() == null);
+                boolean hasRequiredParent = node.getParents().isEmpty() || node.getParents().stream().anyMatch(p -> activeUnlocked.contains(p.getId()));boolean hasEnoughPoints = currentPoints >= node.getCost();
+
+                Identifier sprite = Skills.BUTTON_BACKGROUND_UNOBTAINED;
+                if (isUnlocked) sprite = Skills.BUTTON_BACKGROUND_OBTAINED;
+                else if (!hasRequiredParent || !hasEnoughPoints) sprite = Skills.BUTTON_BACKGROUND_UNOBTAINABLE;
+
+                int drawX = node.getXPos() + windowX;
+                int drawY = node.getYPos() + windowY;
+
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, drawX - 2, drawY - 2, 24, 24);
+            }
+        }
 
         guiGraphics.pose().popMatrix();
-
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 

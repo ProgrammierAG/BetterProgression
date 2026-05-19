@@ -3,9 +3,9 @@ package better_progression.networking;
 import better_progression.BetterProgression;
 import better_progression.Attachments;
 import better_progression.skillLogic.SkillContext;
-import better_progression.skillTreeV2.SkillTree;
-import better_progression.skillTreeV2.nodeTypes.ChoiceNode;
-import better_progression.skillTreeV2.nodeTypes.Node;
+import better_progression.skillTree.SkillTree;
+import better_progression.skillTree.nodeTypes.ChoiceNode;
+import better_progression.skillTree.nodeTypes.Node;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
@@ -113,20 +113,5 @@ public class Networking {
             BetterProgression.getLogger().info("Skill {} unlocked in tree {}", node.getId(), tree.getTreeId());
             player.displayClientMessage(Component.translatable("message.betterprogression.unlocked_success"), true);
         }
-    }
-
-    private static boolean isBlockedByChoice(Node node, List<String> activeUnlocked) {
-        if (activeUnlocked.contains(node.getId())) return false;
-
-        if (node instanceof ChoiceNode choiceNode && choiceNode.getPartner() != null) {
-            if (activeUnlocked.contains(choiceNode.getPartner().getId())) {
-                return true;
-            }
-        }
-
-        List<Node> parents = node.getParents();
-        if (parents == null || parents.isEmpty()) return false;
-
-        return parents.stream().allMatch(parent -> isBlockedByChoice(parent, activeUnlocked));
     }
 }
