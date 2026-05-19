@@ -80,6 +80,11 @@ public class Networking {
             }
         }
 
+        if (Node.isBlockedByChoice(node, activeUnlocked)) {
+            player.displayClientMessage(Component.translatable("message.betterprogression.blocked"), true);
+            return false;
+        }
+
         return true;
     }
 

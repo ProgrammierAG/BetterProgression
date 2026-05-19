@@ -132,4 +132,24 @@ public class Node {
     public void setYPos(int yPos) {
         this.yPos = yPos;
     }
+
+    public static boolean isBlockedByChoice(Node node, List<String> activeUnlocked) {
+        if (activeUnlocked.contains(node.getId())) return false;
+
+        List<Node> parents = node.getParents();
+        if (parents == null || parents.isEmpty()) return false;
+
+        return parents.stream().allMatch(parent -> {
+            if (parent instanceof ChoiceNode cp) {
+                int state = cp.getUnlockState(activeUnlocked);
+
+                if (state > 0) {
+                    if (node.getId().contains("_left") && state == 2) return true;
+                    if (node.getId().contains("_right") && state == 1) return true;
+                }
+            }
+
+            return isBlockedByChoice(parent, activeUnlocked);
+        });
+    }
 }
