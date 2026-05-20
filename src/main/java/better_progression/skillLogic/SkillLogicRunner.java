@@ -53,9 +53,9 @@ public class SkillLogicRunner {
     }
 
     private static Optional<Skill> getSkillFromRegistry(String id) {
-        return SkillTree.REGISTRY.values().stream()
-                .map(tree -> tree.getSkillButtons().get(id))
+        return Optional.ofNullable(SkillTree.REGISTRY.values().stream()
+                .map(tree -> tree.getNodes().get(id))
                 .filter(Objects::nonNull)
-                .findFirst();
+                .findFirst().get().getSkill());
     }
 }

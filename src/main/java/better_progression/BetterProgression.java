@@ -6,6 +6,7 @@ import better_progression.skillLogic.SkillContext;
 import better_progression.skillLogic.SkillLogicRunner;
 import better_progression.skillTree.SkillTree;
 import better_progression.skillTree.SkillTrees;
+import better_progression.skills.Skill;
 import better_progression.skills.Skills;
 import net.fabricmc.api.ModInitializer;
 
@@ -90,11 +91,11 @@ public class BetterProgression implements ModInitializer {
 								if (unlockedSkills != null) {
 									unlockedSkills.parallelStream().forEach(name -> {
 										SkillTree.REGISTRY.values().stream()
-												.map(tree -> tree.getSkillButtons().get(name))
+												.map(tree -> tree.getNodes().get(name))
 												.filter(Objects::nonNull)
 												.findFirst()
-												.ifPresent(skill -> {
-
+												.ifPresent(node -> {
+													Skill skill = node.getSkill();
 													skill.reset(new SkillContext(player, 0));
 												});
 									});

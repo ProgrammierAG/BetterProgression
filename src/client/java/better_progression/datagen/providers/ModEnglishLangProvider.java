@@ -21,8 +21,6 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
     public void generateTranslations(HolderLookup.Provider holderLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add(SKILLPOINT_BOTTLE, SkillpointBottle.ENGLISH_NAME);
 
-        translationBuilder.add("tooltip.betterprogression.cost", "Cost: %d Skill points");
-
         ModSkillTranslationHandler.generateSkillTranslations(translationBuilder, LANGUAGE_CODE);
     }
 }
