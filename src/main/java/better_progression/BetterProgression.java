@@ -88,19 +88,17 @@ public class BetterProgression implements ModInitializer {
 								List<String> unlockedSkills = player.getAttached(Attachments.UNLOCKED_SKILLS);
 
 								if (unlockedSkills != null) {
-									unlockedSkills.parallelStream().forEach(nameId -> {
+									unlockedSkills.parallelStream().forEach(name -> {
 										SkillTree.REGISTRY.values().stream()
-												.map(tree -> tree.getNodes().get(nameId))
+												.map(tree -> tree.getSkillButtons().get(name))
 												.filter(Objects::nonNull)
 												.findFirst()
-												.ifPresent(node -> {
-													if (node.getSkill() != null) {
-														node.getSkill().reset(new SkillContext(player, 0));
-													}
+												.ifPresent(skill -> {
+
+													skill.reset(new SkillContext(player, 0));
 												});
 									});
 								}
-
 								player.setAttached(Attachments.UNLOCKED_SKILLS, new ArrayList<>());
 								player.setAttached(Attachments.SKILL_LEVELS, new HashMap<>());
 
