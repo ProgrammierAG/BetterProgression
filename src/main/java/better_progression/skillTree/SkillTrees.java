@@ -13,6 +13,8 @@ public class SkillTrees {
                 // Ebene 1
                 .node("master_start", Skills.SPEED, 1)
 
+                .node("tmp", Skills.DEEP_BREATH, 1)
+
                 // Ebene 2
                 .node("prep_magic", Skills.NO_HUNGER_EFFECT, 2)
                 .node("prep_melee", Skills.ATTACK_RANGE, 2)

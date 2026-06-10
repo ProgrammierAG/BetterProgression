@@ -1,6 +1,7 @@
 package better_progression.skills;
 
 import better_progression.BetterProgression;
+import better_progression.skillLogic.SkillContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -235,6 +236,30 @@ public class Skills {
             .when(ctx -> ctx.getPlayer().getMainHandItem().isCorrectToolForDrops(net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()))
             .build());
 
+
+    public static final Skill DEEP_BREATH = register(Skill
+            .builder("deep_breath")
+            .descriptionId("deep_breath_desc")
+            .icon(Identifier.withDefaultNamespace("mob_effect/water_breathing"))
+            .action((context) -> {
+                // Füllt die Luftleiste des Spielers in jedem Tick komplett auf
+                if (context.getPlayer() != null) {
+                    context.getPlayer().setAirSupply(context.getPlayer().getMaxAirSupply());
+                }
+            })
+            .when((context) -> {
+
+                return context.getPlayer() != null && context.getPlayer().isEyeInFluid(net.minecraft.tags.FluidTags.WATER);
+            })
+            .elseAction((context) -> {})
+
+            .de("Tiefer Atem", "Verhindert das Ertrinken, indem deine Luft unter Wasser gehalten wird.")
+            .en("Deep Breath", "Prevents drowning by maintaining your air supply while underwater.")
+
+            .onUnlock((context) -> {})
+            .onReset((context) -> {})
+
+            .build());
 
 
 
