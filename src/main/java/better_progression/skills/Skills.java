@@ -79,6 +79,28 @@ public class Skills {
             })
             .build());
 
+    public static final Skill SAFE_FALL_DISTANCE = register(Skill
+            .builder("safe_fall_distance")
+            .descriptionId("safe_fall_distance_desc")
+
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "safe_fall"))
+
+
+            .de("Sichere Fall-Höhe", "Erhöht deine sichere Fall-Höhe")
+            .en("Safe Fall Range", "highers your safe fall distance")
+
+            .onUnlock((ctx) -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.SAFE_FALL_DISTANCE);
+                if (attr != null) attr.setBaseValue(3.0 + (1.0 * ctx.getSkillLevel()));
+             })
+
+            .onReset((ctx) -> {
+                var attr = ctx.getPlayer().getAttribute(Attributes.SAFE_FALL_DISTANCE);
+                if (attr != null) attr.setBaseValue(3.0);
+            })
+
+            .build());
+
     public static final Skill NO_HUNGER_EFFECT = register(Skill
             .builder("no_hunger_effect")
             .descriptionId("no_hunger_effect_desc")

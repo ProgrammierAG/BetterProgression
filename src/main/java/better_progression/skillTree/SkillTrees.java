@@ -24,9 +24,6 @@ public class SkillTrees {
                 .node("mage_gills", Skills.GILLS, 4)
                 .node("knight_health", Skills.MAX_HEALTH, 4)
 
-                //ebene 5
-                .node("feather", Skills.FEATHER_FALLING, 5)
-
                 //ebene 6
 
                 .node("step", Skills.STEP_ASSIST, 6)
@@ -38,6 +35,8 @@ public class SkillTrees {
                 .node("regen", Skills.ALCH_REGEN, 8)
                 .node("haste", Skills.MINING_HASTE, 8)
 
+                .node("safe_falling", Skills.SAFE_FALL_DISTANCE, 8)
+
                 // Verbindungen ziehen
                 .connect("master_start", "prep_magic")
                 .connect("master_start", "prep_melee")
@@ -48,15 +47,15 @@ public class SkillTrees {
                 .connect("class_mage", "mage_gills")
                 .connect("class_knight", "knight_health")
 
-                .connect("knight_health", "feather")
-                .connect("mage_gills", "feather")
-
-                .connect("feather", "step")
+                .connect("knight_health", "step")
+                .connect("mage_gills", "step")
 
                 .connect("step", "vision")
                 .connect("step", "aqua")
                 .connect("step", "regen")
                 .connect("step", "haste")
+
+                .connect("haste", "safe_falling")
                 .build();
     }
 }
