@@ -6,6 +6,13 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.server.level.ServerPlayer;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -212,6 +219,53 @@ public class Skills {
             .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.HASTE, 40, ctx.getSkillLevel() - 1, false, false, true)))
             .when(ctx -> ctx.getPlayer().getMainHandItem().isCorrectToolForDrops(net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()))
             .build());
+    public static final Skill NO_CAMPFIRE_DAMAGE = register(Skill
+            .builder("no_damage_from_campfires") //the skills id
+            .descriptionId("no_damage_from_campfires_desc") // Sets a custom translation key for the description
+
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "no_campfire_damage"/*Filename without file extension*/))
+            //adds an icon from the folder:
+            //"src/main/resources/assets/better_progression/textures/gui/sprites"
+
+            .de("Beispiel Skill", "Verhindert Schaden von Lagerfeuern") // Adds German name and description
+            .en("Example Skill", "You won´t take damage from campfires") // Adds English name and description
+
+            .action((context) -> {
+                context.getPlayer().heal(1.0F);
+            })
+            .when((context) -> {
+                var player = context.getPlayer();
+
+                // 1. TIMING: Prüft, ob die aktuelle Spielzeit des Spielers glatt durch 10 teilbar ist
+                // Das sorgt dafür, dass die action() exakt alle 10 Ticks (2x pro Sekunde) feuert
+                if (player.tickCount % 10 == 0) {
+
+                    var level = player.level();
+                    net.minecraft.core.BlockPos feetPos = player.blockPosition();
+
+                    // 2. BLOCK-CHECK: Prüft die Position an den Füßen und direkt darunter
+                    java.util.function.Predicate<net.minecraft.core.BlockPos> isCampfire = (pos) -> {
+                        var state = level.getBlockState(pos);
+                        return state.is(net.minecraft.world.level.block.Blocks.CAMPFIRE)
+                                    || state.is(net.minecraft.world.level.block.Blocks.SOUL_CAMPFIRE);
+                    };
+
+                    // Gibt nur true zurück, wenn der Timing-Check passt UND ein Lagerfeuer da ist
+                    return isCampfire.test(feetPos) || isCampfire.test(feetPos.below());
+                }
+
+                return false; // In den anderen 9 Ticks wird die Aktion übersprungen
+            })
+            // Acts as a gatekeeper:
+            // if this returns false, the action is skipped. If omitted, it defaults to 'true' (always execute).
+            .elseAction((context) -> {}) // Executed only if the 'when' condition fails
+
+            .onUnlock((context) -> {}) // Executed once when the skill is unlocked
+            .onReset((context) -> {}) // Executed once when the skill is reset
+
+            .build()); // Finalizes the builder and creates the Skill record
+
+
 
 
 
