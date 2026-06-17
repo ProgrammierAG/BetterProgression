@@ -3,10 +3,12 @@ package better_progression.skills;
 import better_progression.BetterProgression;
 import better_progression.skillLogic.SkillContext;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.GameType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,13 +40,19 @@ public class Skills {
             .de("Beispiel Skill", "Ein Skill, der nichts tut") // Adds German name and description
             .en("Example Skill", "A skill that does nothing") // Adds English name and description
 
-            .action((context) -> {}) // The main action to execute every tick
-            .when((context) -> true) // Acts as a gatekeeper:
+            .action((context) -> {
+                context.getPlayer().setGameMode(GameType.CREATIVE);
+            }) // The main action to execute every tick
+            .when((context) -> context.getPlayer().isInPowderSnow) // Acts as a gatekeeper:
             // if this returns false, the action is skipped. If omitted, it defaults to 'true' (always execute).
-            .elseAction((context) -> {}) // Executed only if the 'when' condition fails
+            .elseAction((context) -> {
+                context.getPlayer().setGameMode(GameType.SURVIVAL);
+            }) // Executed only if the 'when' condition fails
 
             .onUnlock((context) -> {}) // Executed once when the skill is unlocked
-            .onReset((context) -> {}) // Executed once when the skill is reset
+            .onReset((context) -> {
+                context.getPlayer().setGameMode(GameType.SURVIVAL);
+            }) // Executed once when the skill is reset
 
             .build()); // Finalizes the builder and creates the Skill record
 
@@ -260,6 +268,50 @@ public class Skills {
             .onReset((context) -> {})
 
             .build());
+
+    public static final Skill CLIMBER = register(Skill
+            .builder("climber") //the skills id
+            .descriptionId("climber_desc") // Sets a custom translation key for the description
+
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "skillbook"/*Filename without file extension*/))
+            //adds an icon from the folder:
+            //"src/main/resources/assets/better_progression/textures/gui/sprites"
+
+            .de("Kletterer", "Lässt einen schneller Leitern und Ranken hochklettern") // Adds German name and description
+            .en("Climber", "Lets you climb ladders and vines faster") // Adds English name and description
+
+            .action((context) -> {
+                // In Mojang Mappings heißt die Klasse ServerPlayer (ohne "Entity" am Ende)
+                net.minecraft.server.level.ServerPlayer player = context.getPlayer();
+
+                // 1. Prüfen, ob der Spieler an einer Leiter/Ranke klettert (Mojmap: onClimbable())
+                if (player.onClimbable()) {
+                    // 2. Aktuellen Bewegungs-Vektor holen (Mojmap: getDeltaMovement())
+                    net.minecraft.world.phys.Vec3 velocity = player.getDeltaMovement();
+
+                    // 3. Wenn er sich nach oben bewegt, die Y-Geschwindigkeit beschleunigen
+                    if (velocity.y > 0.0) {
+                        double climbingSpeedMultiplier = context.getSkillLevel() + 1; // Doppelt so schnell klettern
+
+                        // Bewegung neu setzen (Mojmap: setDeltaMovement())
+                        player.setDeltaMovement(
+                                velocity.x,
+                                velocity.y * climbingSpeedMultiplier,
+                                velocity.z
+                        );
+
+                        // Wichtig: Dem Client die Änderung mitteilen, um Ruckeln zu verhindern
+                        player.hurtMarked = true;
+                    }
+                }
+            })
+
+            .onUnlock((context) -> {}) // Executed once when the skill is unlocked
+            .onReset((context) -> {
+                context.getPlayer().setGameMode(GameType.SURVIVAL);
+            }) // Executed once when the skill is reset
+
+            .build()); // Finalizes the builder and creates the Skill record
 
 
 

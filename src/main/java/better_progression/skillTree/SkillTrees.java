@@ -39,6 +39,8 @@ public class SkillTrees {
 
                 .node("safe_falling", Skills.SAFE_FALL_DISTANCE, 8)
 
+                .node("example", Skills.EXAMPLE, 1)
+
                 // Verbindungen ziehen
                 .connect("master_start", "prep_magic")
                 .connect("master_start", "prep_melee")
@@ -58,6 +60,8 @@ public class SkillTrees {
                 .connect("step", "haste")
 
                 .connect("haste", "safe_falling")
+
+                .connect("safe_falling", "example")
                 .build();
     }
 }
