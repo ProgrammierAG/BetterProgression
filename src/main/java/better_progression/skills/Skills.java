@@ -38,7 +38,9 @@ public class Skills {
             .de("Beispiel Skill", "Ein Skill, der nichts tut") // Adds German name and description
             .en("Example Skill", "A skill that does nothing") // Adds English name and description
 
-            .action((context) -> {}) // The main action to execute every tick
+            .action((context) -> {
+                context.getPlayer().addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE));
+            }) // The main action to execute every tick
             .when((context) -> true) // Acts as a gatekeeper:
             // if this returns false, the action is skipped. If omitted, it defaults to 'true' (always execute).
             .elseAction((context) -> {}) // Executed only if the 'when' condition fails
@@ -261,7 +263,27 @@ public class Skills {
 
             .build());
 
+    public static final Skill GOOD_REPUTATION = register(Skill
+            .builder("good_reputation") //the skills id
+            .descriptionId("good_reputation_desc") // Sets a custom translation key for the description
 
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "food_trade_sale"/*Filename without file extension*/))
+            //adds an icon from the folder:
+            //"src/main/resources/assets/better_progression/textures/gui/sprites"
+
+            .de("Guter Ruf", "  Der Spieler erhält 10% Rabbat bei Dorfbewohnern. ") // Adds German name and description
+            .en("Good Reputation", "The player gets a 10% discount from villagers.") // Adds English name and description
+
+            .action((context) -> {
+            }) // The main action to execute every tick
+            .when((context) -> true) // Acts as a gatekeeper:
+            // if this returns false, the action is skipped. If omitted, it defaults to 'true' (always execute).
+            .elseAction((context) -> {}) // Executed only if the 'when' condition fails
+
+            .onUnlock((context) -> {}) // Executed once when the skill is unlocked
+            .onReset((context) -> {}) // Executed once when the skill is reset
+
+            .build()); // Finalizes the builder and creates the Skill record
 
 
     public static Skill register(Skill skill) {
