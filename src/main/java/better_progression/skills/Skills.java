@@ -13,7 +13,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -219,53 +227,91 @@ public class Skills {
             .action(ctx -> ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.HASTE, 40, ctx.getSkillLevel() - 1, false, false, true)))
             .when(ctx -> ctx.getPlayer().getMainHandItem().isCorrectToolForDrops(net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()))
             .build());
+
     public static final Skill NO_CAMPFIRE_DAMAGE = register(Skill
-            .builder("no_damage_from_campfires") //the skills id
-            .descriptionId("no_damage_from_campfires_desc") // Sets a custom translation key for the description
-
-            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "no_campfire_damage"/*Filename without file extension*/))
-            //adds an icon from the folder:
-            //"src/main/resources/assets/better_progression/textures/gui/sprites"
-
-            .de("Beispiel Skill", "Verhindert Schaden von Lagerfeuern") // Adds German name and description
-            .en("Example Skill", "You won´t take damage from campfires") // Adds English name and description
+            .builder("no_damage_from_campfires")
+            .descriptionId("no_damage_from_campfires_desc")
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "no_campfire_damage"))
+            .de("Kein Schadnen durch Lagerfeuer", "Verhindert Schaden von Lagerfeuern")
+            .en("no damage from campfires", "You won´t take damage from campfires")
 
             .action((context) -> {
                 context.getPlayer().heal(1.0F);
             })
             .when((context) -> {
                 var player = context.getPlayer();
-
-                // 1. TIMING: Prüft, ob die aktuelle Spielzeit des Spielers glatt durch 10 teilbar ist
-                // Das sorgt dafür, dass die action() exakt alle 10 Ticks (2x pro Sekunde) feuert
                 if (player.tickCount % 10 == 0) {
-
                     var level = player.level();
                     net.minecraft.core.BlockPos feetPos = player.blockPosition();
-
-                    // 2. BLOCK-CHECK: Prüft die Position an den Füßen und direkt darunter
                     java.util.function.Predicate<net.minecraft.core.BlockPos> isCampfire = (pos) -> {
                         var state = level.getBlockState(pos);
                         return state.is(net.minecraft.world.level.block.Blocks.CAMPFIRE)
                                     || state.is(net.minecraft.world.level.block.Blocks.SOUL_CAMPFIRE);
                     };
-
-                    // Gibt nur true zurück, wenn der Timing-Check passt UND ein Lagerfeuer da ist
                     return isCampfire.test(feetPos) || isCampfire.test(feetPos.below());
                 }
 
-                return false; // In den anderen 9 Ticks wird die Aktion übersprungen
+                return false;
             })
-            // Acts as a gatekeeper:
-            // if this returns false, the action is skipped. If omitted, it defaults to 'true' (always execute).
-            .elseAction((context) -> {}) // Executed only if the 'when' condition fails
+            .elseAction((context) -> {})
 
-            .onUnlock((context) -> {}) // Executed once when the skill is unlocked
-            .onReset((context) -> {}) // Executed once when the skill is reset
+            .onUnlock((context) -> {})
+            .onReset((context) -> {})
+            .build());
 
-            .build()); // Finalizes the builder and creates the Skill record
+    public static final Skill EFFICIENT_GARDENER = register(Skill
+            .builder("efficient_gardener")
+            .descriptionId("efficient_gardener_desc")
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "efficient_gardener"))
+            .de("effizienter Gärtner", "20% Chance für mehr Ausbeute bei der Ernte")
+            .en("efficient gardener", "20% chance of more loot from crops")
 
+            .action((context) -> {
+                ServerPlayer player = context.getPlayer();
+                ServerLevel world = (ServerLevel) player.level();
 
+                net.minecraft.world.phys.HitResult hitResult = player.pick(5.0D, 0.0F, false);
+                if (hitResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
+                    BlockPos pos = ((net.minecraft.world.phys.BlockHitResult) hitResult).getBlockPos();
+                    BlockState state = world.getBlockState(pos);
+                    if (state.getBlock() instanceof CropBlock cropBlock && cropBlock.isMaxAge(state)) {
+
+                        // 20% Chance auf Bonus
+
+                        if (world.random.nextFloat() < 0.10 * context.getSkillLevel()) {
+                            List<ItemStack> drops = Block.getDrops(state, world, pos, null, player, player.getMainHandItem());
+                            for (ItemStack drop : drops) {
+                                Block.popResource(world, pos, drop);
+                            }
+                        }
+                        world.destroyBlock(pos, true, player);
+                    }
+                }
+            })
+
+            .when((context) -> {
+                ServerPlayer player = context.getPlayer();
+
+                // Prüfen, ob die Welt eine Server-Welt ist (Wichtig, da Ernte nur auf dem Server berechnet wird)
+                if (player.level() instanceof ServerLevel world) {
+
+                    // Block über Blickrichtung ermitteln
+                    net.minecraft.world.phys.HitResult hitResult = player.pick(5.0D, 0.0F, false);
+                    if (hitResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
+                        BlockPos pos = ((net.minecraft.world.phys.BlockHitResult) hitResult).getBlockPos();
+                        BlockState state = world.getBlockState(pos);
+
+                        // Gibt 'true' zurück, wenn es eine ausgewachsene Nutzpflanze ist
+                        return state.getBlock() instanceof CropBlock cropBlock && cropBlock.isMaxAge(state);
+                    }
+                }
+                return false; // In allen anderen Fällen passiert nichts
+            })
+            .elseAction((context) -> {})
+
+            .onUnlock((context) -> {})
+            .onReset((context) -> {})
+            .build());
 
 
 

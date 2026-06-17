@@ -17,6 +17,8 @@ public class SkillTrees {
                 .node("prep_magic", Skills.NO_HUNGER_EFFECT, 2)
                 .node("prep_melee", Skills.ATTACK_RANGE, 2)
                 .node("Campfire", Skills.NO_CAMPFIRE_DAMAGE, 2)
+                .node("Gardener Level1", Skills.EFFICIENT_GARDENER, 2)
+                .node("Gardener Level2", Skills.EFFICIENT_GARDENER, 3)
 
                 .node("class_mage", Skills.FIRE_IMMUNITY, 3)
                 .node("class_knight", Skills.KNOCKBACK_RESIST, 3)
@@ -60,6 +62,8 @@ public class SkillTrees {
                 .connect("step", "haste")
 
                 .connect("haste", "Campfire")
+                .connect("haste", "Gardener Level1")
+                .connect("haste", "Gardener Level2")
                 .build();
     }
 }
