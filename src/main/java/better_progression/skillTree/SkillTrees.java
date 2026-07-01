@@ -6,62 +6,66 @@ import net.minecraft.resources.Identifier;
 
 public class SkillTrees {
     public static void initialize() {
-        // ----- temporary -----
-
-        //AI generated
         SkillTreeBuilder.create(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "class_mastery_tree"))
-                // Ebene 1
+                // ===== Ebene 0: Einstieg =====
                 .node("master_start", Skills.SPEED, 1)
 
-                .node("tmp", Skills.DEEP_BREATH, 1)
+                // ===== Ebene 1: Erste Wahl (Spezialisierung) =====
+                .choiceNode("class_choice", Skills.NO_HUNGER_EFFECT, 2, Skills.ATTACK_RANGE, 2)
 
-                // Ebene 2
-                .node("prep_magic", Skills.NO_HUNGER_EFFECT, 2)
-                .node("prep_melee", Skills.ATTACK_RANGE, 2)
+                // ===== Ebene 2: Mage-Pfad =====
+                .node("mage_magic", Skills.FIRE_IMMUNITY, 3)
+                .node("mage_defense", Skills.GILLS, 4)
 
-                .node("class_mage", Skills.FIRE_IMMUNITY, 3)
-                .node("class_knight", Skills.KNOCKBACK_RESIST, 3)
-
-                // Ebene 4
-                .node("mage_gills", Skills.GILLS, 4)
+                // ===== Ebene 2: Knight-Pfad =====
+                .node("knight_armor", Skills.KNOCKBACK_RESIST, 3)
                 .node("knight_health", Skills.MAX_HEALTH, 4)
 
-                //ebene 6
+                // ===== Ebene 3: Allgemeine Fähigkeiten (erreichbar von beiden Pfaden) =====
+                .node("movement", Skills.STEP_ASSIST, 5)
+                .choiceNode("vision_choice", Skills.NIGHT_VISION, 6, Skills.DEEP_BREATH, 6)
 
-                .node("step", Skills.STEP_ASSIST, 6)
+                // ===== Ebene 4: Spezielle Boni =====
+                .node("speed_boost", Skills.AQUA_SPEED, 7)
+                .node("regen_aura", Skills.ALCH_REGEN, 7)
+                .node("mining_boost", Skills.MINING_HASTE, 7)
+                .node("safe_landing", Skills.SAFE_FALL_DISTANCE, 7)
 
-                //eben 7
+                // ===== Ebene 5: Letzter Knoten =====
+                .node("mastery", Skills.EXAMPLE, 10)
 
-                .node("vision", Skills.NIGHT_VISION, 7)
-                .node("aqua", Skills.AQUA_SPEED, 8)
-                .node("regen", Skills.ALCH_REGEN, 8)
-                .node("haste", Skills.MINING_HASTE, 8)
+                // ===== Verbindungen: Master Start -> Choice =====
+                .connect("master_start", "class_choice")
 
-                .node("safe_falling", Skills.SAFE_FALL_DISTANCE, 8)
+                // ===== Mage-Pfad-Verbindungen =====
+                // Mage branch attaches to the LEFT half of the class choice
+                .connectToChoiceHalf("class_choice", true, "mage_magic")
+                .connect("mage_magic", "mage_defense")
+                .connect("mage_defense", "movement")
+                .connectToChoiceHalf("vision_choice", true, "mage_defense")
 
-                .node("ex", Skills.EXAMPLE, 1)
+                // ===== Knight-Pfad-Verbindungen =====
+                // Knight branch attaches to the RIGHT half of the class choice
+                .connectToChoiceHalf("class_choice", false, "knight_armor")
+                .connect("knight_armor", "knight_health")
+                .connect("knight_health", "movement")
+                .connectToChoiceHalf("vision_choice", false, "knight_health")
 
-                // Verbindungen ziehen
-                .connect("master_start", "prep_magic")
-                .connect("master_start", "prep_melee")
+                // ===== Allgemeine Verbindungen (von movement aus) =====
+                .connect("movement", "speed_boost")
+                .connect("movement", "regen_aura")
+                .connect("movement", "mining_boost")
+                // safe_landing is attached to right half of vision choice
+                .connectToChoiceHalf("vision_choice", false, "safe_landing")
 
-                .connect("prep_magic", "class_mage")
-                .connect("prep_melee", "class_knight")
+                // ===== Finale Verbindung zu Mastery =====
+                .connect("speed_boost", "mastery")
+                .connect("regen_aura", "mastery")
+                .connect("mining_boost", "mastery")
+                .connect("safe_landing", "mastery")
 
-                .connect("class_mage", "mage_gills")
-                .connect("class_knight", "knight_health")
-
-                .connect("knight_health", "step")
-                .connect("mage_gills", "step")
-
-                .connect("step", "vision")
-                .connect("step", "aqua")
-                .connect("step", "regen")
-                .connect("step", "haste")
-
-                .connect("haste", "safe_falling")
-
-                .connect("safe_falling", "ex")
                 .build();
     }
 }
+
+

@@ -30,6 +30,23 @@ public class ChoiceNode extends Node{
         this.idB = baseId + "_right";
     }
 
+    // Children that belong to the left or right branch. This allows connections to be
+    // specified to one half of the choice node without requiring child IDs to contain
+    // "_left"/"_right" suffixes.
+    private final Set<Node> leftChildren = new HashSet<>();
+    private final Set<Node> rightChildren = new HashSet<>();
+
+    public void registerChildForHalf(Node child, boolean left) {
+        if (left) {
+            leftChildren.add(child);
+        } else {
+            rightChildren.add(child);
+        }
+    }
+
+    public boolean isChildOnLeft(Node child) { return leftChildren.contains(child); }
+    public boolean isChildOnRight(Node child) { return rightChildren.contains(child); }
+
     public int getUnlockState(List<String> activeUnlocked) {
         if (activeUnlocked.contains(this.idA)) return 1;
         if (activeUnlocked.contains(this.idB)) return 2;

@@ -5,6 +5,7 @@ import better_progression.Attachments;
 import better_progression.skillLogic.SkillContext;
 import better_progression.skillTree.SkillTree;
 import better_progression.skillTree.nodeTypes.Node;
+import better_progression.skillTree.nodeTypes.ChoiceNode;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
@@ -23,25 +24,62 @@ public class Networking {
             context.server().execute(() -> {
                 BetterProgression.getLogger().info("received Payload for: {}", payload.NAME_ID());
 
-                // Sucht das Node-Objekt in allen registrierten Bäumen
-                Optional<Node> targetNode = SkillTree.REGISTRY.values().stream()
+                // Try to find a direct Node with the given id first
+                Optional<Node> direct = SkillTree.REGISTRY.values().stream()
                         .map(tree -> tree.getNodes().get(payload.NAME_ID()))
                         .filter(Objects::nonNull)
                         .findFirst();
 
-                if (targetNode.isEmpty()) {
+                if (direct.isPresent()) {
+                    // Found a normal node
+                    SkillTree tree = SkillTree.REGISTRY.values().stream()
+                            .filter(t -> t.getNodes().containsKey(payload.NAME_ID()))
+                            .findFirst().orElse(null);
+
+                    if (tree != null && canUnlock(player, direct.get(), tree)) {
+                        unlockSkillForPlayer(player, direct.get(), tree);
+                    }
+                    return;
+                }
+
+                // Not a normal node — maybe it's one half of a ChoiceNode (id ends with _left/_right)
+                // Search for a ChoiceNode that defines this half id
+                SkillTree foundTree = null;
+                ChoiceNode foundChoice = null;
+                for (SkillTree tree : SkillTree.REGISTRY.values()) {
+                    for (Node n : tree.getNodes().values()) {
+                        if (n instanceof ChoiceNode cp) {
+                            if (cp.getIdA().equals(payload.NAME_ID()) || cp.getIdB().equals(payload.NAME_ID())) {
+                                foundTree = tree;
+                                foundChoice = cp;
+                                break;
+                            }
+                        }
+                    }
+                    if (foundChoice != null) break;
+                }
+
+                if (foundChoice == null) {
                     BetterProgression.getLogger().warn("Player {} tried to unlock a non-existent node: {}",
                             player.getName().getString(), payload.NAME_ID());
                     return;
                 }
 
-                // Holt den zugehörigen Baum für Kontext-Abfragen
-                SkillTree tree = SkillTree.REGISTRY.values().stream()
-                        .filter(t -> t.getNodes().containsKey(payload.NAME_ID()))
-                        .findFirst().orElse(null);
+                // Determine which half was clicked and create a temporary Node representing that half
+                String halfId = payload.NAME_ID();
+                boolean isA = foundChoice.getIdA().equals(halfId);
+                Node virtualHalf = new Node(halfId, isA ? foundChoice.getSkillA() : foundChoice.getSkillB(), isA ? foundChoice.getCostA() : foundChoice.getCostB());
 
-                if (tree != null && canUnlock(player, targetNode.get(), tree)) {
-                    unlockSkillForPlayer(player, targetNode.get(), tree);
+                // The prerequisites for unlocking the half are the parents of the ChoiceNode
+                // (i.e. you must have unlocked upstream nodes to reach the choice)
+                for (Node p : foundChoice.getParents()) {
+                    virtualHalf.getParents().add(p);
+                }
+
+                if (foundTree != null && canUnlock(player, virtualHalf, foundTree)) {
+                    // When unlocking, we will add the half-id to unlocked skills and
+                    // invoke the corresponding skill unlock logic (via the temporary Node)
+                    unlockSkillForPlayer(player, virtualHalf, foundTree);
                 }
             });
         });

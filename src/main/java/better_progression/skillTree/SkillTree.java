@@ -1,6 +1,7 @@
 package better_progression.skillTree;
 
 import better_progression.BetterProgression;
+import better_progression.skillTree.nodeTypes.ChoiceNode;
 import better_progression.skillTree.nodeTypes.Node;
 import better_progression.skills.Skill;
 import net.minecraft.resources.Identifier;
@@ -32,6 +33,14 @@ public class SkillTree {
         return node;
     }
 
+    public ChoiceNode registerChoiceNode(String alias, Skill skillA, int costA, Skill skillB, int costB) {
+        String uniqueId = treeId.getPath() + "_" + alias;
+        ChoiceNode choiceNode = new ChoiceNode(uniqueId, skillA, costA, skillB, costB);
+
+        nodes.put(uniqueId, choiceNode);
+        return choiceNode;
+    }
+
     public void connect(Node parent, Node child) {
         if (parent == null || child == null) return;
 
@@ -41,6 +50,26 @@ public class SkillTree {
         }
 
         parent.addChild(child);
+    }
+
+    /**
+     * Connect a parent to a child, but attach the child specifically to one half
+     * of a ChoiceNode parent. The child remains a normal Node, but the ChoiceNode
+     * will remember that this child belongs to its left or right branch which
+     * affects blocking logic and rendering.
+     */
+    public void connectToChoiceHalf(Node parent, Node child, boolean leftHalf) {
+        if (parent == null || child == null) return;
+
+        if (isReachable(child, parent)) {
+            BetterProgression.getLogger().warn("[{}] Connection rejected (Loop detected)", treeId);
+            return;
+        }
+
+        parent.addChild(child);
+        if (parent instanceof ChoiceNode cp) {
+            cp.registerChildForHalf(child, leftHalf);
+        }
     }
 
     public boolean isReachable(Node current, Node target) {

@@ -144,8 +144,11 @@ public class Node {
                 int state = cp.getUnlockState(activeUnlocked);
 
                 if (state > 0) {
-                    if (node.getId().contains("_left") && state == 2) return true;
-                    if (node.getId().contains("_right") && state == 1) return true;
+                    // If this parent is a ChoiceNode, consult its registered child-sets
+                    // to determine whether this particular child is blocked by the
+                    // opponent half being chosen.
+                    if (cp.isChildOnLeft(node) && state == 2) return true;
+                    if (cp.isChildOnRight(node) && state == 1) return true;
                 }
             }
 
