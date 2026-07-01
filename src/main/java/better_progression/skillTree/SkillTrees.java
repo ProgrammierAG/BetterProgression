@@ -41,6 +41,8 @@ public class SkillTrees {
 
                 .node("ex", Skills.EXAMPLE, 1)
 
+                .node("ressistance_poison", Skills.RESISTANCE_POISON,5)
+
                 // Verbindungen ziehen
                 .connect("master_start", "prep_magic")
                 .connect("master_start", "prep_melee")
@@ -58,6 +60,7 @@ public class SkillTrees {
                 .connect("step", "aqua")
                 .connect("step", "regen")
                 .connect("step", "haste")
+                .connect("haste","step")
 
                 .connect("haste", "safe_falling")
 

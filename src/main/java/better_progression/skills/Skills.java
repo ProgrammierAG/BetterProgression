@@ -285,6 +285,51 @@ public class Skills {
 
             .build()); // Finalizes the builder and creates the Skill record
 
+    public static final Skill RESISTANCE_POISON = register(Skill
+            .builder("resistance_poison") // Die ID für deine Fähigkeit
+            .descriptionId("resistance_poison_desc") // Übersetzungsschlüssel
+
+            .icon(Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "poison_resistance"))
+            // Bild: "src/main/resources/assets/better_progression/textures/gui/sprites/poison_resistance.png"
+
+            .de("Giftresistenz", "Gift-Effekte halten 50% kürzer an.") // Deutsch
+            .en("Poison Resistance", "Poison effects last 50% shorter.") // Englisch
+
+            .action((context) -> {
+                var player = context.getPlayer();
+                if (player == null) return;
+
+                // In Mojmap heißt es 'MobEffects.POISON'
+                var poisonEffect = net.minecraft.world.effect.MobEffects.POISON;
+
+                // In Mojmap heißt die Methode 'hasEffect' statt 'hasStatusEffect'
+                if (player.hasEffect(poisonEffect)) {
+                    var effectInstance = player.getEffect(poisonEffect);
+
+                    if (effectInstance != null && effectInstance.getDuration() > 2) {
+                        int currentDuration = effectInstance.getDuration();
+                        int amplifier = effectInstance.getAmplifier();
+                        boolean ambient = effectInstance.isAmbient();
+                        boolean particles = effectInstance.isVisible(); // In Mojmap heißt es 'isVisible' statt 'shouldShowParticles'
+
+                        // Entfernt das aktuelle Gift
+                        player.removeEffect(poisonEffect);
+
+                        // Verringert die Zeit um 2 Ticks pro Spiel-Tick (Minecraft zieht 1 ab, wir ziehen 1 ab = 50% schneller vorbei)
+                        player.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                                poisonEffect,
+                                currentDuration - 2,
+                                amplifier,
+                                ambient,
+                                particles
+                        ));
+                    }
+                }
+            })
+            .build()); // Erstellt die Fähigkeit
+
+
+
 
     public static Skill register(Skill skill) {
         BetterProgression.getLogger().info("registering Skill: {}", skill.id());
