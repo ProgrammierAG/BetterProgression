@@ -4,7 +4,6 @@ import better_progression.BetterProgression;
 import better_progression.Attachments;
 import better_progression.skillLogic.SkillContext;
 import better_progression.skillTree.SkillTree;
-import better_progression.skillTree.nodeTypes.ChoiceNode;
 import better_progression.skillTree.nodeTypes.Node;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -65,18 +64,6 @@ public class Networking {
             if (!hasUnlockedParent) {
                 player.displayClientMessage(Component.translatable("message.betterprogression.requires_parent"), true);
                 return false;
-            }
-        } else {
-            Optional<Node> globalStartNode = SkillTree.REGISTRY.values().stream()
-                    .flatMap(t -> t.getRootNodes().stream())
-                    .findFirst();
-
-            if (globalStartNode.isPresent()) {
-                String firstNodeId = globalStartNode.get().getId();
-                if (!node.getId().equals(firstNodeId) && !activeUnlocked.contains(firstNodeId)) {
-                    player.displayClientMessage(Component.translatable("message.betterprogression.requires_parent"), true);
-                    return false;
-                }
             }
         }
 

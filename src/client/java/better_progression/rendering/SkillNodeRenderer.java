@@ -90,27 +90,6 @@ public class SkillNodeRenderer {
         return button;
     }
 
-    public static void renderLines(Node node, GuiGraphics guiGraphics, int windowX, int windowY, List<String> activeUnlocked, SkillTreeUI screen) {
-        int targetX = node.getXPos() + windowX + 10;
-        int targetY = node.getYPos() + windowY + 10;
-
-        if (node.getParents().isEmpty() && !node.getId().equals("GLOBAL_ROOT")) {
-            screen.getGlobalRootNode().ifPresent(rootNode -> {
-                int startX = rootNode.getXPos() + windowX + 10;
-                int startY = rootNode.getYPos() + windowY + 10;
-                int lineColor = activeUnlocked.contains(node.getId()) ? 0xFF55FF55 : 0xFF555555;
-                screen.drawLine(guiGraphics, targetX, targetY, startX, startY, lineColor);
-            });
-        }
-
-        node.getParents().forEach(parent -> {
-            int startX = parent.getXPos() + windowX + 10;
-            int startY = parent.getYPos() + windowY + 10;
-
-            int lineColor = activeUnlocked.contains(parent.getId()) && activeUnlocked.contains(node.getId()) ? 0xFF55FF55 : 0xFF555555;
-            screen.drawLine(guiGraphics, targetX, targetY, startX, startY, lineColor);
-        });
-    }
 
     public static void renderBackground(Node node, ImageButton button, GuiGraphics guiGraphics, int windowX, int windowY, List<String> activeUnlocked) {
         if (button == null) return;
