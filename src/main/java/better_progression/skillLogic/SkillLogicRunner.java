@@ -16,10 +16,19 @@ public class SkillLogicRunner {
     public static void initialize() {
         BetterProgression.getLogger().info("registering SkillLogicRunner");
 
-        ServerTickEvents.START_SERVER_TICK.register(server -> {
+        // Run skills at the end of the server tick so movement changes (e.g. setDeltaMovement)
+        // applied by skills are not immediately overwritten by later player movement logic.
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
             server.getPlayerList().getPlayers().forEach(player -> {
                 SkillContext context = CONTEXT_CACHE.get(player.getUUID());
-                if (context == null) return;
+                if (context == null) {
+                    return;
+                }
+
+                // Check if the player reference is stale (e.g., after respawn) and update it
+                if (context.getPlayer() != player) {
+                    context.setPlayer(player);
+                }
 
                 List<String> skills = player.getAttachedOrCreate(Attachments.UNLOCKED_SKILLS, ArrayList::new);
                 Map<String, Integer> levels = player.getAttachedOrCreate(Attachments.SKILL_LEVELS, HashMap::new);

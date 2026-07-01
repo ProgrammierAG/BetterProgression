@@ -281,27 +281,33 @@ public class Skills {
             .en("Climber", "Lets you climb ladders and vines faster") // Adds English name and description
 
             .action((context) -> {
-                // In Mojang Mappings heißt die Klasse ServerPlayer (ohne "Entity" am Ende)
                 net.minecraft.server.level.ServerPlayer player = context.getPlayer();
 
-                // 1. Prüfen, ob der Spieler an einer Leiter/Ranke klettert (Mojmap: onClimbable())
+                // Nur anwenden, wenn der Spieler an einer Leiter/Ranke klettert
                 if (player.onClimbable()) {
-                    // 2. Aktuellen Bewegungs-Vektor holen (Mojmap: getDeltaMovement())
                     net.minecraft.world.phys.Vec3 velocity = player.getDeltaMovement();
 
-                    // 3. Wenn er sich nach oben bewegt, die Y-Geschwindigkeit beschleunigen
-                    if (velocity.y > 0.0) {
-                        double climbingSpeedMultiplier = context.getSkillLevel() + 1; // Doppelt so schnell klettern
+                    // Verhindere, dass der Spieler beim Versuch, seitlich von der Leiter zu gehen,
+                    // weiterhin automatisch hochgezogen wird. Wenn der Spieler sich deutlich
+                    // horizontal bewegt, greifen wir nicht in die vertikale Bewegung ein.
+                    double horizontalSpeed = Math.hypot(velocity.x, velocity.z);
+                    double horizontalThreshold = 0.1; // wenn größer -> vermutlich versucht der Spieler die Leiter zu verlassen
 
-                        // Bewegung neu setzen (Mojmap: setDeltaMovement())
-                        player.setDeltaMovement(
-                                velocity.x,
-                                velocity.y * climbingSpeedMultiplier,
-                                velocity.z
-                        );
+                    if (horizontalSpeed <= horizontalThreshold) {
+                        // Basis-Klettergeschwindigkeit (konstanter Wert, um exponentielles Verhalten zu vermeiden)
+                        double baseClimbSpeed = 0.1;
 
-                        // Wichtig: Dem Client die Änderung mitteilen, um Ruckeln zu verhindern
-                        player.hurtMarked = true;
+                        // Lineare Level-Skalierung: Level 1 = 1.0×, Level 2 = 1.5×, Level 3 = 2.0× usw.
+                        int level = Math.max(1, context.getSkillLevel());
+                        double speedMultiplier = 1.0 + (0.5 * (level - 1));
+                        double newClimbSpeed = baseClimbSpeed * speedMultiplier;
+
+                        // Wende die Erhöhung nur an, wenn sie die aktuelle vertikale Geschwindigkeit erhöht.
+                        // So wird ein fallender Spieler nicht plötzlich nach oben gezogen.
+                        if (newClimbSpeed > velocity.y) {
+                            player.setDeltaMovement(velocity.x, newClimbSpeed, velocity.z);
+                            player.hurtMarked = true;
+                        }
                     }
                 }
             })
