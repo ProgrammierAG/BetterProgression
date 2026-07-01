@@ -47,6 +47,18 @@ public class Attachments {
                     )
     );
 
+    // Percentage discount for trades (stored as an integer percent, e.g. 10 == 10%)
+    public static final AttachmentType<Integer> TRADE_DISCOUNT_PERCENT = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(BetterProgression.MOD_ID, "trade_discount_percent"),
+            builder -> builder
+                    .initializer(() -> 0)
+                    .persistent(Codec.INT)
+                    .syncWith(
+                            ByteBufCodecs.VAR_INT,
+                            AttachmentSyncPredicate.targetOnly()
+                    )
+    );
+
     public static void initialize() {
         BetterProgression.getLogger().info("Initializing Attachments");
     }

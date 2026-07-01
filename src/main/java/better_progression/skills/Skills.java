@@ -1,6 +1,7 @@
 package better_progression.skills;
 
 import better_progression.BetterProgression;
+import better_progression.Attachments;
 import better_progression.skillLogic.SkillContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.FluidTags;
@@ -274,14 +275,28 @@ public class Skills {
             .de("Guter Ruf", "  Der Spieler erhält 10% Rabbat bei Dorfbewohnern. ") // Adds German name and description
             .en("Good Reputation", "The player gets a 10% discount from villagers.") // Adds English name and description
 
+            // store the discount percentage on unlock and remove it on reset
+            .onUnlock((context) -> {
+                try {
+                    context.getPlayer().setAttached(Attachments.TRADE_DISCOUNT_PERCENT, 10);
+                } catch (Exception e) {
+                    BetterProgression.getLogger().warn("Could not set trade discount for player {}: {}", context.getPlayer().getScoreboardName(), e.getMessage());
+                }
+            })
+            .onReset((context) -> {
+                try {
+                    context.getPlayer().setAttached(Attachments.TRADE_DISCOUNT_PERCENT, 0);
+                } catch (Exception e) {
+                    BetterProgression.getLogger().warn("Could not reset trade discount for player {}: {}", context.getPlayer().getScoreboardName(), e.getMessage());
+                }
+            })
+
             .action((context) -> {
             }) // The main action to execute every tick
             .when((context) -> true) // Acts as a gatekeeper:
             // if this returns false, the action is skipped. If omitted, it defaults to 'true' (always execute).
             .elseAction((context) -> {}) // Executed only if the 'when' condition fails
 
-            .onUnlock((context) -> {}) // Executed once when the skill is unlocked
-            .onReset((context) -> {}) // Executed once when the skill is reset
 
             .build()); // Finalizes the builder and creates the Skill record
 
