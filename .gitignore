@@ -37,6 +37,8 @@ run/**/*
 run/saves/*
 !run/saves/Testing/
 !run/saves/Testing/*
+!run/saves/survival/
+!run/saves/survival/*
 
 
 # java
