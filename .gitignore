@@ -37,8 +37,8 @@ run/**/*
 run/saves/*
 !run/saves/Testing/
 !run/saves/Testing/*
-!run/saves/survival/
-!run/saves/survival/*
+!run/saves/New World/
+!run/saves/New World/*
 
 
 # java
